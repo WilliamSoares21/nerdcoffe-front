@@ -17,14 +17,14 @@ export interface Article {
   author: {
     id: string
     username: string
-    avatar_url?: string
+    avatarUrl?: string
   }
-  tags: string[]
+  tags?: string[]
   upvotes: number
-  comments_count: number
-  reading_time_minutes: number
-  published_at: string
-  is_bookmarked?: boolean
+  commentsCount: number
+  readingTimeMinutes: number
+  publishedAt: string
+  isBookmarked?: boolean
 }
 
 export interface Tag {
@@ -44,30 +44,25 @@ export interface SponsorFormData {
   newsletter_interest: boolean
 }
 
-export interface ApiResponse<T> {
-  data: T
-  meta?: {
-    total: number
-    page: number
-    per_page: number
-  }
-}
-
-export interface ApiError {
-  status: number
-  code: string
+export interface ApiResponseDto<T> {
+  success: boolean
   message: string
+  data: T
+  timestamp: string
 }
 
-export interface AuthCredentials {
-  email: string
-  password: string
+export interface PageResponseDto<T> {
+  content: T[]
+  pageNumber: number
+  pageSize: number
+  totalElements: number
+  totalPages: number
+  last: boolean
 }
 
 export interface AuthResponse {
-  user: User
   token: string
-  expires_at: string
+  user: User
 }
 
 // Feed/Hub specific types
