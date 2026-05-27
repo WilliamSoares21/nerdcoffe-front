@@ -20,39 +20,6 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border">
-        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <Coffee className="h-5 w-5 text-coffee transition-colors group-hover:text-coffee-light" />
-            <span className="font-semibold tracking-tight">morning.dev</span>
-          </Link>
-          <nav className="flex items-center gap-6">
-            <Link href="/feed" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Feed
-            </Link>
-            <Link href="/articles" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Artigos
-            </Link>
-            {isAuthenticated ? (
-              <Link
-                href="/feed"
-                className="px-4 py-2 bg-coffee text-accent-foreground text-sm font-medium rounded-sm hover:bg-coffee-light transition-colors"
-              >
-                Ir para o Feed
-              </Link>
-            ) : (
-              <Link
-                href="/login"
-                className="px-4 py-2 bg-coffee text-accent-foreground text-sm font-medium rounded-sm hover:bg-coffee-light transition-colors"
-              >
-                Entrar
-              </Link>
-            )}
-          </nav>
-        </div>
-      </header>
-
       {/* Hero */}
       <section className="border-b border-border">
         <div className="max-w-6xl mx-auto px-6 py-24">
