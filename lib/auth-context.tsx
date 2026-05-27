@@ -1,6 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
+import { getAuthToken } from "./auth-actions"
 
 interface User {
   id: string
@@ -10,75 +11,57 @@ interface User {
 
 interface AuthContextType {
   user: User | null
-  token: string | null
   isAuthenticated: boolean
   isLoading: boolean
-  login: (email: string, password: string) => Promise<boolean>
-  logout: () => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ 
+  children, 
+  initialSession = false 
+}: { 
+  children: ReactNode
+  initialSession?: boolean
+}) {
   const [user, setUser] = useState<User | null>(null)
-  const [token, setToken] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isAuthenticated, setIsAuthenticated] = useState(initialSession)
+  const [isLoading, setIsLoading] = useState(!initialSession)
 
   useEffect(() => {
-    // Simulate checking for existing session
-    const storedToken = typeof window !== "undefined" ? sessionStorage.getItem("auth_token") : null
-    const storedUser = typeof window !== "undefined" ? sessionStorage.getItem("auth_user") : null
-    
-    if (storedToken && storedUser) {
-      setToken(storedToken)
-      setUser(JSON.parse(storedUser))
-    }
-    setIsLoading(false)
-  }, [])
-
-  const login = async (email: string, password: string): Promise<boolean> => {
-    setIsLoading(true)
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    // Demo: accept any valid email/password combo
-    if (email && password.length >= 6) {
-      const mockUser = {
-        id: "usr_" + Math.random().toString(36).substr(2, 9),
-        email,
-        name: email.split("@")[0],
+    async function checkAuth() {
+      // If we already have initialSession, we might still want to fetch user data
+      // but we don't necessarily need to re-validate the token immediately if it's already there
+      try {
+        const token = await getAuthToken()
+        
+        if (token) {
+          setIsAuthenticated(true)
+          const storedUser = typeof window !== "undefined" ? sessionStorage.getItem("auth_user") : null
+          if (storedUser) {
+            setUser(JSON.parse(storedUser))
+          }
+        } else {
+          setIsAuthenticated(false)
+          setUser(null)
+        }
+      } catch (error) {
+        console.error("Failed to check auth status:", error)
+        setIsAuthenticated(false)
+      } finally {
+        setIsLoading(false)
       }
-      const mockToken = "tok_" + Math.random().toString(36).substr(2, 32)
-      
-      setUser(mockUser)
-      setToken(mockToken)
-      sessionStorage.setItem("auth_token", mockToken)
-      sessionStorage.setItem("auth_user", JSON.stringify(mockUser))
-      setIsLoading(false)
-      return true
     }
     
-    setIsLoading(false)
-    return false
-  }
-
-  const logout = () => {
-    setUser(null)
-    setToken(null)
-    sessionStorage.removeItem("auth_token")
-    sessionStorage.removeItem("auth_user")
-  }
+    checkAuth()
+  }, [])
 
   return (
     <AuthContext.Provider
       value={{
         user,
-        token,
-        isAuthenticated: !!user && !!token,
+        isAuthenticated,
         isLoading,
-        login,
-        logout,
       }}
     >
       {children}

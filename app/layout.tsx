@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { cookies } from 'next/headers'
 import { AuthProvider } from '@/lib/auth-context'
+import { Header } from '@/components/header'
 import './globals.css'
 
 const _geist = Geist({ subsets: ["latin"] });
@@ -30,15 +32,19 @@ export const metadata: Metadata = {
   },
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const cookieStore = await cookies()
+  const initialSession = !!cookieStore.get("auth_token")?.value
+
   return (
     <html lang="pt-BR" className="bg-background">
       <body className="font-sans antialiased">
-        <AuthProvider>
+        <AuthProvider initialSession={initialSession}>
+          <Header />
           {children}
         </AuthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
