@@ -102,7 +102,7 @@ function ArticleRow({ article }: { article: Article }) {
       {/* Content */}
       <div className="flex-1 min-w-0">
         <Link 
-          href={`/articles/${article.slug}`}
+          href={`/articles/${article.id}`}
           className="font-medium hover:text-coffee transition-colors line-clamp-1"
         >
           {article.title}
@@ -140,7 +140,7 @@ function ArticleRow({ article }: { article: Article }) {
 }
 
 export default function ArticlesPage() {
-  const { isAuthenticated, token } = useAuth()
+  const { isAuthenticated } = useAuth()
   const [isLoading, setIsLoading] = useState(true)
   const [articles, setArticles] = useState<Article[]>([])
   const [activeTab, setActiveTab] = useState<"recent" | "my">("recent")
@@ -156,17 +156,15 @@ export default function ArticlesPage() {
     fetchArticles()
   }, [])
 
-  const isTokenValid = isAuthenticated && token?.startsWith("tok_")
-
   return (
     <div className="min-h-screen bg-background">
       <Sidebar />
       
       <main className="lg:pl-64">
         <div className="max-w-4xl mx-auto">
-          {/* Header */}
-          <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border">
-            <div className="px-4 py-4 pt-16 lg:pt-4">
+          {/* Content Toolbar */}
+          <div className="sticky top-16 z-10 bg-background/95 backdrop-blur border-b border-border">
+            <div className="px-4 py-4">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <FileText className="h-5 w-5 text-coffee" />
@@ -200,7 +198,7 @@ export default function ArticlesPage() {
                 </button>
               </div>
             </div>
-          </header>
+          </div>
 
           {/* Content */}
           {activeTab === "recent" ? (
@@ -216,7 +214,7 @@ export default function ArticlesPage() {
             )
           ) : (
             // My Articles - Restricted
-            isTokenValid ? (
+            isAuthenticated ? (
               <div>
                 {myArticles.length === 0 ? (
                   <div className="p-8 text-center">
