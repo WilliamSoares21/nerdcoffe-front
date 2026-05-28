@@ -16,6 +16,7 @@ import { useAuth } from "@/lib/auth-context"
 import type { Article } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { getPublicArticlesAction, getMyArticlesAction } from "@/app/actions/articles"
+import { calculateReadingTime } from "@/lib/utils"
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("pt-BR", {
@@ -31,7 +32,7 @@ function ArticleRow({ article }: { article: Article }) {
       {/* Upvotes */}
       <div className="flex flex-col items-center text-muted-foreground">
         <ChevronUp className="h-4 w-4" />
-        <span className="font-mono text-xs">{article.upvotes}</span>
+        <span className="font-mono text-xs">{article.upvoteCount}</span>
       </div>
 
       {/* Content */}
@@ -43,9 +44,9 @@ function ArticleRow({ article }: { article: Article }) {
           {article.title}
         </Link>
         
-        {article.excerpt && (
+        {article.summary && (
           <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
-            {article.excerpt}
+            {article.summary}
           </p>
         )}
         
@@ -53,7 +54,7 @@ function ArticleRow({ article }: { article: Article }) {
           <span className="font-mono">@{article.author.username || "autor"}</span>
           <span className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            {article.readingTimeMinutes} min
+            {calculateReadingTime(article.content)} min
           </span>
           <span className="font-mono">{article.publishedAt ? formatDate(article.publishedAt) : "Rascunho"}</span>
         </div>

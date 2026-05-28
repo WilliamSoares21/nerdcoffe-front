@@ -17,6 +17,7 @@ import {
   createPageResponseSchema,
   type Article 
 } from "@/lib/schemas"
+import { calculateReadingTime } from "@/lib/utils"
 
 // Mock tags as there is no specified endpoint for them yet
 const popularTags = [
@@ -50,7 +51,7 @@ function ArticleCard({ article }: { article: Article }) {
         {/* Upvote (Static for now in Server Component) */}
         <div className="flex flex-col items-center gap-0.5 pt-1 text-muted-foreground">
           <ChevronUp className="h-5 w-5" />
-          <span className="font-mono text-xs">{article.upvotes}</span>
+          <span className="font-mono text-xs">{article.upvoteCount}</span>
         </div>
 
         {/* Content */}
@@ -61,9 +62,9 @@ function ArticleCard({ article }: { article: Article }) {
             </h2>
           </Link>
           
-          {article.excerpt && (
+          {article.summary && (
             <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-              {article.excerpt}
+              {article.summary}
             </p>
           )}
 
@@ -85,7 +86,7 @@ function ArticleCard({ article }: { article: Article }) {
             <span className="font-mono">@{article.author.username}</span>
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
-              {article.readingTimeMinutes} min
+              {calculateReadingTime(article.content)} min
             </span>
             <span className="flex items-center gap-1">
               <MessageSquare className="h-3 w-3" />

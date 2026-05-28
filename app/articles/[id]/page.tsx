@@ -17,6 +17,7 @@ import {
 } from "@/lib/schemas"
 import { Button } from "@/components/ui/button"
 import { ArticleHeaderActions, ArticleFooterActions } from "@/components/article-actions"
+import { calculateReadingTime } from "@/lib/utils"
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("pt-BR", {
@@ -100,9 +101,14 @@ export default async function ArticleDetailPage({
               ))}
             </div>
             
-            <h1 className="text-4xl font-bold tracking-tight mb-8 leading-tight">
+            <h1 className={`text-4xl font-bold tracking-tight leading-tight ${article.summary ? "mb-4" : "mb-8"}`}>
               {article.title}
             </h1>
+            {article.summary && (
+              <p className="text-lg text-muted-foreground mb-8">
+                {article.summary}
+              </p>
+            )}
 
             <div className="flex items-center justify-between py-6 border-y border-border">
               <div className="flex items-center gap-4">
@@ -120,7 +126,7 @@ export default async function ArticleDetailPage({
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
-                      {article.readingTimeMinutes} min de leitura
+                      {calculateReadingTime(article.content)} min de leitura
                     </span>
                   </div>
                 </div>
@@ -154,9 +160,10 @@ export default async function ArticleDetailPage({
           {/* Footer Actions */}
           <ArticleFooterActions 
             articleId={article.id} 
-            initialUpvotes={article.upvotes} 
+            initialUpvotes={article.upvoteCount} 
             commentsCount={article.commentsCount} 
             isAuthor={isAuthor}
+            initialIsUpvoted={article.userUpvoted}
           />
         </div>
       </main>

@@ -22,16 +22,16 @@ export const ArticleSchema = z.object({
   id: z.coerce.string(),
   title: z.string(),
   excerpt: z.string().optional().nullable(),
+  summary: z.string().optional().nullable(),
   content: z.string().optional().nullable(),
   author: AuthorSchema,
   tags: z.array(z.string()).default([]).or(z.null().transform(() => [])), 
-  upvotes: z.number().default(0).or(z.null().transform(() => 0)),
   upvoteCount: z.number().default(0).or(z.null().transform(() => 0)),
   commentsCount: z.number().default(0).or(z.null().transform(() => 0)),
   readingTimeMinutes: z.number().default(0).or(z.null().transform(() => 0)),
   publishedAt: z.string().nullable().optional().default(null),
   isBookmarked: z.boolean().optional().default(false),
-  isUpvoted: z.boolean().optional().default(false),
+  userUpvoted: z.boolean().default(false).or(z.null().transform(() => false)),
 })
 
 // Generic ApiResponse Wrapper Schema

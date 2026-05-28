@@ -13,6 +13,7 @@ export interface Article {
   title: string
   slug: string
   excerpt?: string
+  summary?: string
   content?: string
   author: {
     id: string
@@ -20,13 +21,12 @@ export interface Article {
     avatarUrl?: string
   }
   tags?: string[]
-  upvotes: number
-  upvoteCount?: number
+  upvoteCount: number
   commentsCount: number
   readingTimeMinutes: number
   publishedAt?: string | null
   isBookmarked?: boolean
-  isUpvoted?: boolean
+  userUpvoted?: boolean
 }
 
 export interface Tag {
