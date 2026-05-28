@@ -1,11 +1,11 @@
 import Link from "next/link"
+import { notFound } from "next/navigation"
+import { cookies } from "next/headers"
 import { 
   ChevronLeft, 
   Clock, 
   Calendar, 
   MessageSquare, 
-  Share2, 
-  Bookmark,
   ChevronUp
 } from "lucide-react"
 import { Sidebar } from "@/components/sidebar"
@@ -16,6 +16,7 @@ import {
   type Article 
 } from "@/lib/schemas"
 import { Button } from "@/components/ui/button"
+import { ArticleHeaderActions, ArticleFooterActions } from "@/components/article-actions"
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("pt-BR", {
@@ -48,21 +49,28 @@ export default async function ArticleDetailPage({
   }
 
   if (error || !article) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Sidebar />
-        <main className="lg:pl-64 flex items-center justify-center p-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-semibold mb-4">Artigo não encontrado</h1>
-            <p className="text-muted-foreground mb-6">O artigo que você está procurando não existe ou foi removido.</p>
-            <Button asChild variant="outline">
-              <Link href="/feed">Voltar ao feed</Link>
-            </Button>
-          </div>
-        </main>
-      </div>
-    )
+    notFound()
   }
+
+  // Retrieve current logged in user from cookies to check ownership
+  const cookieStore = await cookies()
+  const userCookie = cookieStore.get("auth_user")?.value
+  let currentUser = null
+  if (userCookie) {
+    try {
+      currentUser = JSON.parse(userCookie)
+    } catch (e) {
+      console.warn("Failed to parse auth_user cookie inside ArticleDetailPage:", e)
+    }
+  }
+
+  // Check if current user is the author
+  const isAuthor = !!(
+    currentUser && 
+    (currentUser.id === article.author.id || 
+     currentUser.username === article.author.username || 
+     currentUser.email === article.author.email)
+  )
 
   return (
     <div className="min-h-screen bg-background">
@@ -108,7 +116,7 @@ export default async function ArticleDetailPage({
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />
-                      {formatDate(article.publishedAt)}
+                      {article.publishedAt ? formatDate(article.publishedAt) : "Rascunho"}
                     </span>
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
@@ -118,14 +126,12 @@ export default async function ArticleDetailPage({
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-coffee">
-                  <Share2 className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-coffee">
-                  <Bookmark className={`h-4 w-4 ${article.isBookmarked ? "fill-coffee text-coffee" : ""}`} />
-                </Button>
-              </div>
+              <ArticleHeaderActions 
+                articleId={article.id} 
+                title={article.title} 
+                excerpt={article.excerpt || undefined} 
+                isBookmarkedInitial={article.isBookmarked}
+              />
             </div>
           </header>
 
@@ -146,20 +152,12 @@ export default async function ArticleDetailPage({
           </article>
 
           {/* Footer Actions */}
-          <footer className="pt-12 border-t border-border flex items-center justify-between">
-            <div className="flex items-center gap-6">
-              <button className="flex items-center gap-2 text-muted-foreground hover:text-coffee transition-colors group">
-                <div className="p-2 bg-secondary rounded-full group-hover:bg-coffee/10">
-                  <ChevronUp className="h-5 w-5" />
-                </div>
-                <span className="font-mono text-sm">{article.upvotes} upvotes</span>
-              </button>
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <MessageSquare className="h-5 w-5" />
-                <span className="font-mono text-sm">{article.commentsCount} comentários</span>
-              </div>
-            </div>
-          </footer>
+          <ArticleFooterActions 
+            articleId={article.id} 
+            initialUpvotes={article.upvotes} 
+            commentsCount={article.commentsCount} 
+            isAuthor={isAuthor}
+          />
         </div>
       </main>
     </div>

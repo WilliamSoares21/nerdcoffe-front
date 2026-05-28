@@ -91,7 +91,7 @@ function ArticleCard({ article }: { article: Article }) {
               <MessageSquare className="h-3 w-3" />
               {article.commentsCount}
             </span>
-            <span className="font-mono">{formatRelativeTime(article.publishedAt)}</span>
+            <span className="font-mono">{article.publishedAt ? formatRelativeTime(article.publishedAt) : "Rascunho"}</span>
           </div>
         </div>
       </div>
@@ -115,11 +115,11 @@ export default async function FeedPage({
   )
 
   try {
-    const response = await apiClient(
+    const response = await apiClient<any>(
       `/articles/public?page=0&size=10${tagFilter ? `&tag=${tagFilter}` : ""}`,
       { schema: FeedResponseSchema }
     )
-    articles = response.data.content
+    articles = response.data?.content ?? []
   } catch (e) {
     console.error("Failed to fetch articles:", e)
     error = true
