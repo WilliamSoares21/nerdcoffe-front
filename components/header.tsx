@@ -46,12 +46,12 @@ export function Header() {
           {!isLandingPage && (
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="md:hidden mr-1">
+                <Button variant="ghost" size="icon" className="lg:hidden mr-1">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Menu</span>
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72 bg-background p-0 border-r border-border">
+              <SheetContent side="left" className="w-72 bg-background p-0 border-r border-border flex flex-col">
                 <SheetHeader className="p-6 border-b border-border text-left">
                   <SheetTitle className="flex items-center gap-2">
                     <Coffee className="h-5 w-5 text-coffee" />
@@ -73,14 +73,46 @@ export function Header() {
                       {item.name}
                     </Link>
                   ))}
+                  {isAuthenticated && (
+                    <Link
+                      href="/articles"
+                      className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-sm transition-colors ${
+                        pathname === "/articles"
+                          ? "bg-coffee/10 text-coffee"
+                          : "text-muted-foreground hover:bg-secondary hover:text-foreground"
+                      }`}
+                    >
+                      <FileText className="h-4 w-4" />
+                      <span>Meus Artigos</span>
+                    </Link>
+                  )}
                 </div>
-                {!isAuthenticated && (
+                {!isAuthenticated ? (
                   <div className="mt-auto p-4 border-t border-border grid gap-2">
                     <Button variant="outline" asChild className="w-full">
                       <Link href="/login">Entrar</Link>
                     </Button>
                     <Button asChild className="w-full bg-coffee hover:bg-coffee-light">
                       <Link href="/register">Criar conta</Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="mt-auto p-4 border-t border-border flex flex-col gap-4">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-9 w-9">
+                        <AvatarImage src={user?.avatarUrl || ""} alt={user?.name || "User"} />
+                        <AvatarFallback className="bg-secondary text-xs font-mono">
+                          {user?.name?.charAt(0) || <UserIcon className="h-4 w-4" />}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-sm font-medium truncate">{user?.name || "Usuário"}</span>
+                        <span className="text-xs text-muted-foreground truncate">{user?.email}</span>
+                      </div>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={handleLogout} className="w-full gap-2 border-destructive/20 hover:bg-destructive/10 hover:text-destructive transition-colors">
+                      <LogOut className="h-4 w-4" />
+                      Sair
                     </Button>
                   </div>
                 )}
