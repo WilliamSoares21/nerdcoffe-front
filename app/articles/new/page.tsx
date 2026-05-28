@@ -12,6 +12,7 @@ import {
   updateArticleAction, 
   getArticleAction 
 } from "@/app/actions/articles"
+import { RichTextEditor } from "@/components/rich-text-editor"
 
 export default function ArticleEditorPage() {
   const router = useRouter()
@@ -51,7 +52,7 @@ export default function ArticleEditorPage() {
       } else if (res.data) {
         const art = res.data
         setTitle(art.title)
-        setExcerpt(art.excerpt || "")
+        setExcerpt(art.summary || "")
         setContent(art.content || "")
         setTagsInput(art.tags ? art.tags.join(", ") : "")
         setFetchingArticle(false)
@@ -221,20 +222,16 @@ export default function ArticleEditorPage() {
                     />
                   </div>
 
-                  {/* Content (HTML supported) */}
+                   {/* Content (HTML supported) */}
                   <div className="space-y-2">
                     <label htmlFor="content" className="text-sm font-medium flex justify-between">
                       <span>Conteúdo</span>
-                      <span className="text-xs text-muted-foreground font-mono">Suporta tags HTML para formatação</span>
+                      <span className="text-xs text-muted-foreground font-mono">Editor Rico Visual</span>
                     </label>
-                    <textarea
-                      id="content"
+                    <RichTextEditor
                       value={content}
-                      onChange={(e) => setContent(e.target.value)}
-                      placeholder="<p>Escreva seu artigo aqui...</p>\n\n<p>Use tags HTML básicas como <strong>, <em>, <code> para formatação simples.</p>"
-                      required
-                      rows={12}
-                      className="w-full px-3 py-2.5 bg-input border border-border rounded-sm text-sm font-mono placeholder:text-muted-foreground/30 focus:outline-none focus:ring-1 focus:ring-coffee focus:border-coffee transition-colors resize-y leading-relaxed"
+                      onChange={setContent}
+                      placeholder="Escreva seu artigo aqui..."
                     />
                   </div>
 
