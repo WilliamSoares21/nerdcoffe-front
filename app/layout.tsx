@@ -39,11 +39,21 @@ export default async function RootLayout({
 }>) {
   const cookieStore = await cookies()
   const initialSession = !!cookieStore.get("auth_token")?.value
+  const userCookie = cookieStore.get("auth_user")?.value
+  
+  let initialUser = null
+  if (userCookie) {
+    try {
+      initialUser = JSON.parse(userCookie)
+    } catch (e) {
+      console.warn("RootLayout: failed to parse auth_user cookie", e)
+    }
+  }
 
   return (
     <html lang="pt-BR" className="bg-background">
       <body className="font-sans antialiased">
-        <AuthProvider initialSession={initialSession}>
+        <AuthProvider initialSession={initialSession} initialUser={initialUser}>
           <Header />
           {children}
         </AuthProvider>

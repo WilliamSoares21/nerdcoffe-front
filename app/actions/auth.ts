@@ -25,8 +25,17 @@ export async function loginAction(credentials: AuthCredentials) {
       return { error: result.message || "Falha na autenticação" }
     }
 
-    const { token } = result.data
+    const { token, user } = result.data
     await setAuthToken(token)
+
+    const cookieStore = await cookies()
+    cookieStore.set("auth_user", JSON.stringify(user), {
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    })
     
     // Revalidate all paths to sync authentication state
     revalidatePath("/", "layout")
@@ -63,6 +72,8 @@ export async function registerAction(formData: any) {
 
 export async function logoutAction() {
   await removeAuthToken()
+  const cookieStore = await cookies()
+  cookieStore.delete("auth_user")
   revalidatePath("/", "layout")
   redirect("/")
 }

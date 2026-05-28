@@ -7,6 +7,7 @@ interface User {
   id: string
   email: string
   name: string
+  avatarUrl?: string
 }
 
 interface AuthContextType {
@@ -19,42 +20,22 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ 
   children, 
-  initialSession = false 
+  initialSession = false,
+  initialUser = null
 }: { 
   children: ReactNode
   initialSession?: boolean
+  initialUser?: User | null
 }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUser] = useState<User | null>(initialUser)
   const [isAuthenticated, setIsAuthenticated] = useState(initialSession)
-  const [isLoading, setIsLoading] = useState(!initialSession)
+  const [isLoading, setIsLoading] = useState(false)
 
+  // Sync state dynamically when server-side initial props change
   useEffect(() => {
-    async function checkAuth() {
-      // If we already have initialSession, we might still want to fetch user data
-      // but we don't necessarily need to re-validate the token immediately if it's already there
-      try {
-        const token = await getAuthToken()
-        
-        if (token) {
-          setIsAuthenticated(true)
-          const storedUser = typeof window !== "undefined" ? sessionStorage.getItem("auth_user") : null
-          if (storedUser) {
-            setUser(JSON.parse(storedUser))
-          }
-        } else {
-          setIsAuthenticated(false)
-          setUser(null)
-        }
-      } catch (error) {
-        console.error("Failed to check auth status:", error)
-        setIsAuthenticated(false)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-    
-    checkAuth()
-  }, [])
+    setIsAuthenticated(initialSession)
+    setUser(initialUser)
+  }, [initialSession, initialUser])
 
   return (
     <AuthContext.Provider
