@@ -21,10 +21,12 @@ export interface Article {
   }
   tags?: string[]
   upvotes: number
+  upvoteCount?: number
   commentsCount: number
   readingTimeMinutes: number
-  publishedAt: string
+  publishedAt?: string | null
   isBookmarked?: boolean
+  isUpvoted?: boolean
 }
 
 export interface Tag {
@@ -63,6 +65,11 @@ export interface PageResponseDto<T> {
 export interface AuthResponse {
   token: string
   user: User
+}
+
+export interface AuthCredentials {
+  email: string
+  password: string
 }
 
 // Feed/Hub specific types

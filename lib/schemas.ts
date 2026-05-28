@@ -26,10 +26,12 @@ export const ArticleSchema = z.object({
   author: AuthorSchema,
   tags: z.array(z.string()).default([]).or(z.null().transform(() => [])), 
   upvotes: z.number().default(0).or(z.null().transform(() => 0)),
+  upvoteCount: z.number().default(0).or(z.null().transform(() => 0)),
   commentsCount: z.number().default(0).or(z.null().transform(() => 0)),
   readingTimeMinutes: z.number().default(0).or(z.null().transform(() => 0)),
-  publishedAt: z.string(),
+  publishedAt: z.string().nullable().optional().default(null),
   isBookmarked: z.boolean().optional().default(false),
+  isUpvoted: z.boolean().optional().default(false),
 })
 
 // Generic ApiResponse Wrapper Schema
