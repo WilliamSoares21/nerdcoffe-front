@@ -7,6 +7,8 @@ import { Bookmark, ChevronUp, Edit3, MessageSquare, Share2, Trash2 } from "lucid
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { deleteArticleAction, upvoteArticleAction } from "@/app/actions/articles"
+import { useAuth } from "@/lib/auth-context"
+
 
 interface HeaderActionsProps {
   articleId: string
@@ -84,7 +86,12 @@ interface FooterActionsProps {
   articleId: string
   initialUpvotes: number
   commentsCount: number
-  isAuthor: boolean
+  isAuthor?: boolean
+  author?: {
+    id: string | number
+    email?: string
+    username?: string
+  }
   initialIsUpvoted?: boolean
 }
 
@@ -93,13 +100,26 @@ export function ArticleFooterActions({
   initialUpvotes,
   commentsCount,
   isAuthor,
+  author,
   initialIsUpvoted = false,
 }: FooterActionsProps) {
   const router = useRouter()
+  const { user } = useAuth()
+  
   const [count, setCount] = useState(initialUpvotes || 0)
   const [active, setActive] = useState(initialIsUpvoted)
   const [isLoading, setIsLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
+
+  // Strictly check ownership using useAuth context (id or email)
+  const isOwner = !!(
+    user && 
+    author && 
+    (String(user.id) === String(author.id) || 
+     (user.email && author.email && user.email === author.email))
+  )
+
+  const hasAccess = author ? isOwner : isAuthor
 
   const handleUpvote = async () => {
     if (isLoading) return
@@ -176,7 +196,7 @@ export function ArticleFooterActions({
       </div>
 
       {/* Author specific actions (Edit/Delete) */}
-      {isAuthor && (
+      {hasAccess && (
         <div className="flex items-center gap-2">
           <Button 
             asChild

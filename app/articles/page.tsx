@@ -27,6 +27,9 @@ function formatDate(dateString: string): string {
 }
 
 function ArticleRow({ article }: { article: Article }) {
+  const authorName = (article.author as any).name || article.author.username || "Autor"
+  const initials = authorName.charAt(0)
+
   return (
     <article className="flex items-start gap-4 p-4 border-b border-border hover:bg-secondary/30 transition-colors">
       {/* Upvotes */}
@@ -50,11 +53,27 @@ function ArticleRow({ article }: { article: Article }) {
           </p>
         )}
         
-        <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-          <span className="font-mono">@{article.author.username || "autor"}</span>
+        <div className="flex flex-wrap items-center gap-4 mt-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-1.5">
+            {article.author.avatarUrl ? (
+              <img 
+                src={article.author.avatarUrl} 
+                alt={authorName} 
+                className="h-5 w-5 rounded-full object-cover border border-border"
+              />
+            ) : (
+              <div className="h-5 w-5 rounded-full bg-secondary flex items-center justify-center border border-border text-[10px] font-mono uppercase font-bold text-muted-foreground">
+                {initials}
+              </div>
+            )}
+            <span className="font-mono font-medium text-foreground/85">
+              {(article.author as any).name || `@${article.author.username}`}
+            </span>
+          </div>
+
           <span className="flex items-center gap-1">
             <Clock className="h-3 w-3" />
-            {calculateReadingTime(article.content)} min
+            {calculateReadingTime(article.content || "")} min
           </span>
           <span className="font-mono">{article.publishedAt ? formatDate(article.publishedAt) : "Rascunho"}</span>
         </div>

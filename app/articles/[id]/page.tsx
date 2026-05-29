@@ -163,6 +163,7 @@ export default async function ArticleDetailPage({
             initialUpvotes={article.upvoteCount} 
             commentsCount={article.commentsCount} 
             isAuthor={isAuthor}
+            author={article.author}
             initialIsUpvoted={article.userUpvoted}
           />
         </div>
