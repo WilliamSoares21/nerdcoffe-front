@@ -1,5 +1,6 @@
 "use client"
 
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { 
@@ -10,6 +11,13 @@ import {
   Hash
 } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { getPopularTagsAction } from "@/app/actions/articles"
+
+interface TagItem {
+  name: string
+  count?: number
+  articles_count?: number
+}
 
 const navigation = [
   { name: "Feed", href: "/feed", icon: Flame },
@@ -17,17 +25,20 @@ const navigation = [
   { name: "Patrocinadores", href: "/sponsors", icon: Users },
 ]
 
-const trendingTags = [
-  { name: "typescript", count: 1420 },
-  { name: "react", count: 980 },
-  { name: "nextjs", count: 756 },
-  { name: "rust", count: 542 },
-  { name: "golang", count: 489 },
-]
-
 export function Sidebar() {
   const pathname = usePathname()
   const isLandingPage = pathname === "/"
+  const [trendingTags, setTrendingTags] = useState<TagItem[]>([])
+
+  useEffect(() => {
+    async function fetchTags() {
+      const res = await getPopularTagsAction()
+      if (res.success && res.data) {
+        setTrendingTags(res.data)
+      }
+    }
+    fetchTags()
+  }, [])
 
   if (isLandingPage) return null
 
@@ -68,28 +79,31 @@ export function Sidebar() {
       </nav>
 
       {/* Trending Tags */}
-      <div className="px-5 py-4 border-t border-sidebar-border">
-        <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
-          Trending
-        </h3>
-        <div className="space-y-1.5">
-          {trendingTags.map((tag) => (
-            <Link
-              key={tag.name}
-              href={`/feed?tag=${tag.name}`}
-              className="flex items-center justify-between py-1.5 px-2 text-sm text-muted-foreground hover:text-foreground hover:bg-sidebar-accent rounded-sm transition-colors group"
-            >
-              <span className="flex items-center gap-1.5">
-                <Hash className="h-3 w-3 text-coffee opacity-60" />
-                <span className="font-mono text-xs">{tag.name}</span>
-              </span>
-              <span className="font-mono text-xs text-muted-foreground/60 group-hover:text-muted-foreground">
-                {tag.count}
-              </span>
-            </Link>
-          ))}
+      {trendingTags.length > 0 && (
+        <div className="px-5 py-4 border-t border-sidebar-border">
+          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+            Trending
+          </h3>
+          <div className="space-y-1.5">
+            {trendingTags.map((tag) => (
+              <Link
+                key={tag.name}
+                href={`/feed?tag=${tag.name}`}
+                className="flex items-center justify-between py-1.5 px-2 text-sm text-muted-foreground hover:text-foreground hover:bg-sidebar-accent rounded-sm transition-colors group"
+              >
+                <span className="flex items-center gap-1.5">
+                  <Hash className="h-3 w-3 text-coffee opacity-60" />
+                  <span className="font-mono text-xs">{tag.name}</span>
+                </span>
+                <span className="font-mono text-xs text-muted-foreground/60 group-hover:text-muted-foreground">
+                  {tag.articles_count ?? tag.count ?? 0}
+                </span>
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </aside>
   )
 }
+

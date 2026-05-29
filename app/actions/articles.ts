@@ -153,3 +153,16 @@ export async function upvoteArticleAction(id: string) {
     return { error: error.message || "Erro ao conectar com o servidor" }
   }
 }
+
+export async function getPopularTagsAction() {
+  try {
+    const response = await apiClient<any>("/tags")
+    const data = response?.data || response
+    return { success: true, data: Array.isArray(data) ? data : [] }
+  } catch (error: any) {
+    console.error("getPopularTagsAction error:", error)
+    // If the endpoint doesn't exist yet, return an empty array to wait for the API
+    return { success: true, data: [] }
+  }
+}
+

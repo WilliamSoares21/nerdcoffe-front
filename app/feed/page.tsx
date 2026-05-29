@@ -19,17 +19,7 @@ import {
 } from "@/lib/schemas"
 import { calculateReadingTime } from "@/lib/utils"
 
-// Mock tags as there is no specified endpoint for them yet
-const popularTags = [
-  { name: "typescript", count: 1420 },
-  { name: "react", count: 980 },
-  { name: "nextjs", count: 756 },
-  { name: "rust", count: 542 },
-  { name: "golang", count: 489 },
-  { name: "docker", count: 412 },
-  { name: "kubernetes", count: 387 },
-  { name: "aws", count: 356 },
-]
+import { getPopularTagsAction } from "@/app/actions/articles"
 
 function formatRelativeTime(dateString: string): string {
   const date = new Date(dateString)
@@ -45,6 +35,9 @@ function formatRelativeTime(dateString: string): string {
 }
 
 function ArticleCard({ article }: { article: Article }) {
+  const authorName = article.author.name || article.author.username || "Autor"
+  const initials = authorName.charAt(0)
+
   return (
     <article className="p-4 border-b border-border hover:bg-secondary/30 transition-colors">
       <div className="flex items-start gap-4">
@@ -81,12 +74,28 @@ function ArticleCard({ article }: { article: Article }) {
             ))}
           </div>
 
-          {/* Meta */}
-          <div className="flex items-center gap-4 text-xs text-muted-foreground">
-            <span className="font-mono">@{article.author.username}</span>
+          {/* Meta with Standardized Author */}
+          <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex items-center gap-1.5">
+              {article.author.avatarUrl ? (
+                <img 
+                  src={article.author.avatarUrl} 
+                  alt={authorName} 
+                  className="h-5 w-5 rounded-full object-cover border border-border"
+                />
+              ) : (
+                <div className="h-5 w-5 rounded-full bg-secondary flex items-center justify-center border border-border text-[10px] font-mono uppercase font-bold text-muted-foreground">
+                  {initials}
+                </div>
+              )}
+              <span className="font-mono font-medium text-foreground/85">
+                {article.author.name || `@${article.author.username}`}
+              </span>
+            </div>
+
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
-              {calculateReadingTime(article.content)} min
+              {calculateReadingTime(article.content || "")} min
             </span>
             <span className="flex items-center gap-1">
               <MessageSquare className="h-3 w-3" />
@@ -109,6 +118,7 @@ export default async function FeedPage({
   
   let articles: Article[] = []
   let error = false
+  let popularTags: Array<{ name: string; count?: number; articles_count?: number }> = []
 
   // Define the schema for this specific request
   const FeedResponseSchema = createApiResponseSchema(
@@ -124,6 +134,16 @@ export default async function FeedPage({
   } catch (e) {
     console.error("Failed to fetch articles:", e)
     error = true
+  }
+
+  // Fetch real tags dynamically
+  try {
+    const resTags = await getPopularTagsAction()
+    if (resTags.success && resTags.data) {
+      popularTags = resTags.data
+    }
+  } catch (e) {
+    console.error("Failed to fetch popular tags in FeedPage:", e)
   }
 
   return (
@@ -204,30 +224,34 @@ export default async function FeedPage({
             </div>
 
             {/* Right Sidebar - Tags */}
-            <aside className="hidden xl:block w-72 p-4">
-              <div className="sticky top-4">
-                <h2 className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-4">
-                  <Hash className="h-4 w-4" />
-                  Tags populares
-                </h2>
-                <div className="space-y-1">
-                  {popularTags.map((tag) => (
-                    <Link
-                      key={tag.name}
-                      href={`/feed?tag=${tag.name}${sort !== "recent" ? `&sort=${sort}` : ""}`}
-                      className={`flex items-center justify-between py-2 px-3 rounded-sm transition-colors ${
-                        tagFilter === tag.name
-                          ? "bg-coffee/20 text-coffee"
-                          : "hover:bg-secondary text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <span className="font-mono text-sm">#{tag.name}</span>
-                      <span className="font-mono text-xs opacity-60">{tag.count}</span>
-                    </Link>
-                  ))}
+            {popularTags.length > 0 && (
+              <aside className="hidden xl:block w-72 p-4">
+                <div className="sticky top-4">
+                  <h2 className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-4">
+                    <Hash className="h-4 w-4" />
+                    Tags populares
+                  </h2>
+                  <div className="space-y-1">
+                    {popularTags.map((tag) => (
+                      <Link
+                        key={tag.name}
+                        href={`/feed?tag=${tag.name}${sort !== "recent" ? `&sort=${sort}` : ""}`}
+                        className={`flex items-center justify-between py-2 px-3 rounded-sm transition-colors ${
+                          tagFilter === tag.name
+                            ? "bg-coffee/20 text-coffee"
+                            : "hover:bg-secondary text-muted-foreground hover:text-foreground"
+                        }`}
+                      >
+                        <span className="font-mono text-sm">#{tag.name}</span>
+                        <span className="font-mono text-xs opacity-60">
+                          {tag.articles_count ?? tag.count ?? 0}
+                        </span>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            </aside>
+              </aside>
+            )}
           </div>
         </div>
       </main>
