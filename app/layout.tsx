@@ -55,7 +55,9 @@ export default async function RootLayout({
       <body className="font-sans antialiased">
         <AuthProvider initialSession={initialSession} initialUser={initialUser}>
           <Header />
-          {children}
+          <div className="pt-16">
+            {children}
+          </div>
         </AuthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
