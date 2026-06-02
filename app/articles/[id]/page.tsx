@@ -18,6 +18,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { ArticleHeaderActions, ArticleFooterActions } from "@/components/article-actions"
 import { calculateReadingTime } from "@/lib/utils"
+import MarkdownRenderer from "@/components/markdown-renderer"
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("pt-BR", {
@@ -150,7 +151,7 @@ export default async function ArticleDetailPage({
             <div className="text-lg leading-relaxed space-y-6">
               {/* If backend provides content as markdown or raw text */}
               {article.content ? (
-                <div dangerouslySetInnerHTML={{ __html: article.content }} />
+                <MarkdownRenderer content={article.content} />
               ) : (
                 <p>Nenhum conteúdo disponível para este artigo.</p>
               )}
