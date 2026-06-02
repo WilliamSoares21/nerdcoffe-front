@@ -6,8 +6,19 @@ import Link from "next/link"
 import { Bookmark, ChevronUp, Edit3, MessageSquare, Share2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { deleteArticleAction, upvoteArticleAction } from "@/app/actions/articles"
+import { deleteArticleAction, upvoteArticleAction, saveArticleAction } from "@/app/actions/articles"
 import { useAuth } from "@/lib/auth-context"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 
 interface HeaderActionsProps {
@@ -24,6 +35,7 @@ export function ArticleHeaderActions({
   isBookmarkedInitial = false,
 }: HeaderActionsProps) {
   const [isBookmarked, setIsBookmarked] = useState(isBookmarkedInitial)
+  const [isSaving, setIsSaving] = useState(false)
 
   const handleShare = async () => {
     const shareData = {
@@ -53,9 +65,20 @@ export function ArticleHeaderActions({
     }
   }
 
-  const handleBookmark = () => {
-    setIsBookmarked(!isBookmarked)
-    toast.success(isBookmarked ? "Artigo removido dos favoritos!" : "Artigo favoritado com sucesso!")
+  const handleBookmark = async () => {
+    if (isSaving) return
+    setIsSaving(true)
+    
+    const previousState = isBookmarked
+    setIsBookmarked(!previousState)
+    toast.success(!previousState ? "Artigo favoritado com sucesso!" : "Artigo removido dos favoritos!")
+    
+    const res = await saveArticleAction(articleId)
+    if (res.error) {
+      toast.error(`Falha ao salvar artigo: ${res.error}`)
+      setIsBookmarked(previousState)
+    }
+    setIsSaving(false)
   }
 
   return (
@@ -93,6 +116,7 @@ interface FooterActionsProps {
     username?: string
   }
   initialIsUpvoted?: boolean
+  initialIsBookmarked?: boolean
 }
 
 export function ArticleFooterActions({
@@ -102,6 +126,7 @@ export function ArticleFooterActions({
   isAuthor,
   author,
   initialIsUpvoted = false,
+  initialIsBookmarked = false,
 }: FooterActionsProps) {
   const router = useRouter()
   const { user } = useAuth()
@@ -110,6 +135,25 @@ export function ArticleFooterActions({
   const [active, setActive] = useState(initialIsUpvoted)
   const [isLoading, setIsLoading] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked)
+  const [isSaving, setIsSaving] = useState(false)
+
+  const handleBookmark = async () => {
+    if (isSaving) return
+    setIsSaving(true)
+    
+    const previousState = isBookmarked
+    setIsBookmarked(!previousState)
+    toast.success(!previousState ? "Artigo favoritado com sucesso!" : "Artigo removido dos favoritos!")
+    
+    const res = await saveArticleAction(articleId)
+    if (res.error) {
+      toast.error(`Falha ao salvar artigo: ${res.error}`)
+      setIsBookmarked(previousState)
+    }
+    setIsSaving(false)
+    router.refresh()
+  }
 
   // Strictly check ownership using useAuth context (id or email)
   const isOwner = !!(
@@ -149,19 +193,14 @@ export function ArticleFooterActions({
   }
 
   const handleDelete = async () => {
-    const confirmDelete = window.confirm("Deseja realmente excluir este artigo permanentemente?")
-    if (!confirmDelete) return
-
     setDeleting(true)
     const result = await deleteArticleAction(articleId)
 
-    if (result.error) {
+    if (result && result.error) {
       toast.error(`Falha ao excluir o artigo: ${result.error}`)
       setDeleting(false)
     } else {
       toast.success("Artigo excluído com sucesso.")
-      router.push("/feed")
-      router.refresh()
     }
   }
 
@@ -193,6 +232,24 @@ export function ArticleFooterActions({
           </div>
           <span>{commentsCount} comentários</span>
         </div>
+
+        {/* Bookmark */}
+        <button 
+          onClick={handleBookmark}
+          disabled={isSaving}
+          className={`flex items-center gap-2 text-sm font-mono transition-colors group disabled:opacity-70 disabled:cursor-not-allowed ${
+            isBookmarked ? "text-coffee" : "text-muted-foreground hover:text-coffee"
+          }`}
+        >
+          <div className={`p-2 rounded-full transition-colors ${
+            isBookmarked ? "bg-coffee/20" : "bg-secondary group-hover:bg-coffee/10"
+          }`}>
+            <Bookmark className={`h-5 w-5 transition-transform ${
+              isBookmarked ? "scale-110 fill-coffee text-coffee animate-pulse" : "group-hover:scale-105"
+            }`} />
+          </div>
+          <span>{isBookmarked ? "Salvo" : "Salvar"}</span>
+        </button>
       </div>
 
       {/* Author specific actions (Edit/Delete) */}
@@ -210,16 +267,36 @@ export function ArticleFooterActions({
             </Link>
           </Button>
 
-          <Button 
-            variant="outline"
-            size="sm"
-            onClick={handleDelete}
-            disabled={deleting}
-            className="gap-1.5 border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 text-xs"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            {deleting ? "Excluindo..." : "Excluir"}
-          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button 
+                variant="outline"
+                size="sm"
+                disabled={deleting}
+                className="gap-1.5 border-destructive/20 text-destructive hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 text-xs"
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+                {deleting ? "Excluindo..." : "Excluir"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Excluir Artigo?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Deseja realmente excluir este artigo permanentemente? Essa ação não poderá ser desfeita.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={handleDelete}
+                  className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                >
+                  Excluir
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
       )}
     </div>

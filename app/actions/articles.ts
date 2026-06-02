@@ -1,6 +1,7 @@
 "use server"
 
 import { revalidatePath } from "next/cache"
+import { redirect } from "next/navigation"
 import { apiClient } from "@/lib/api-client"
 
 import { ArticleSchema, createApiResponseSchema } from "@/lib/schemas"
@@ -31,6 +32,19 @@ export async function getPublicArticlesAction() {
   } catch (error: any) {
     console.error("getPublicArticlesAction error:", error)
     return { error: error.message || "Erro ao buscar artigos públicos" }
+  }
+}
+
+export async function getTrendingArticlesAction() {
+  try {
+    const response = await apiClient<any>("/articles/public/trending?page=0&size=50")
+    // Cover Page wrappers or direct arrays
+    const data = response.data || response
+    const articles = data.content || (Array.isArray(data) ? data : [])
+    return { success: true, data: articles }
+  } catch (error: any) {
+    console.error("getTrendingArticlesAction error:", error)
+    return { error: error.message || "Erro ao buscar artigos em alta" }
   }
 }
 
@@ -128,11 +142,12 @@ export async function deleteArticleAction(id: string) {
 
     revalidatePath("/feed")
     revalidatePath("/articles")
-    return { success: true }
   } catch (error: any) {
     console.error("deleteArticleAction error:", error)
     return { error: error.message || "Erro de conexão com o servidor" }
   }
+
+  redirect("/feed")
 }
 
 export async function upvoteArticleAction(id: string) {
@@ -165,4 +180,37 @@ export async function getPopularTagsAction() {
     return { success: true, data: [] }
   }
 }
+
+export async function saveArticleAction(id: string) {
+  try {
+    const response = await apiClient<any>(`/articles/${id}/save`, {
+      method: "POST",
+    })
+    
+    if (response && response.success === false) {
+      return { error: response.message || "Erro ao salvar artigo" }
+    }
+    
+    revalidatePath("/feed")
+    revalidatePath("/articles")
+    revalidatePath(`/articles/${id}`)
+    return { success: true, data: response.data || response }
+  } catch (error: any) {
+    console.error("saveArticleAction error:", error)
+    return { error: error.message || "Erro ao conectar com o servidor" }
+  }
+}
+
+export async function getSavedArticlesAction() {
+  try {
+    const response = await apiClient<any>("/articles/saved")
+    const data = response.data || response
+    const articles = data.content || (Array.isArray(data) ? data : [])
+    return { success: true, data: articles }
+  } catch (error: any) {
+    console.error("getSavedArticlesAction error:", error)
+    return { error: error.message || "Erro ao buscar artigos salvos" }
+  }
+}
+
 

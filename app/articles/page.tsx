@@ -2,20 +2,22 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useSearchParams } from "next/navigation"
 import { 
   FileText, 
   Lock, 
   Calendar, 
   Clock,
   ChevronUp,
-  Plus
+  Plus,
+  Bookmark
 } from "lucide-react"
 import { Sidebar } from "@/components/sidebar"
 import { FeedSkeleton } from "@/components/skeletons"
 import { useAuth } from "@/lib/auth-context"
 import type { Article } from "@/lib/types"
 import { Button } from "@/components/ui/button"
-import { getPublicArticlesAction, getMyArticlesAction } from "@/app/actions/articles"
+import { getPublicArticlesAction, getMyArticlesAction, getSavedArticlesAction } from "@/app/actions/articles"
 import { calculateReadingTime } from "@/lib/utils"
 
 function formatDate(dateString: string): string {
@@ -96,10 +98,23 @@ function ArticleRow({ article }: { article: Article }) {
 
 export default function ArticlesPage() {
   const { user, isAuthenticated } = useAuth()
+  const searchParams = useSearchParams()
+  const tabParam = searchParams.get("tab")
   const [isLoading, setIsLoading] = useState(true)
   const [articles, setArticles] = useState<Article[]>([])
   const [myArticles, setMyArticles] = useState<Article[]>([])
-  const [activeTab, setActiveTab] = useState<"recent" | "my">("recent")
+  const [savedArticles, setSavedArticles] = useState<Article[]>([])
+  const [activeTab, setActiveTab] = useState<"recent" | "my" | "saved">("recent")
+
+  useEffect(() => {
+    if (tabParam === "my") {
+      setActiveTab("my")
+    } else if (tabParam === "saved") {
+      setActiveTab("saved")
+    } else {
+      setActiveTab("recent")
+    }
+  }, [tabParam])
 
   useEffect(() => {
     const fetchArticles = async () => {
@@ -114,6 +129,11 @@ export default function ArticlesPage() {
           const resMy = await getMyArticlesAction()
           if (resMy.success && resMy.data) {
             setMyArticles(resMy.data)
+          }
+
+          const resSaved = await getSavedArticlesAction()
+          if (resSaved.success && resSaved.data) {
+            setSavedArticles(resSaved.data)
           }
         }
       } catch (e) {
@@ -175,6 +195,19 @@ export default function ArticlesPage() {
                   <Lock className="h-3.5 w-3.5" />
                   Meus Artigos
                 </button>
+                {isAuthenticated && (
+                  <button
+                    onClick={() => setActiveTab("saved")}
+                    className={`flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-sm transition-colors ${
+                      activeTab === "saved"
+                        ? "bg-background text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    <Bookmark className="h-3.5 w-3.5" />
+                    Salvos
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -196,7 +229,7 @@ export default function ArticlesPage() {
                 ))}
               </div>
             )
-          ) : (
+          ) : activeTab === "my" ? (
             // My Articles - Restricted
             isAuthenticated ? (
               isLoading ? (
@@ -253,6 +286,74 @@ export default function ArticlesPage() {
                       <span className="text-muted-foreground select-none">&gt;</span>
                       <span className="text-muted-foreground">
                         Faça login para acessar seus artigos.
+                      </span>
+                    </div>
+                  </div>
+                  <div className="px-6 pb-6">
+                    <Link
+                      href="/login"
+                      className="block w-full text-center px-4 py-2.5 bg-coffee text-accent-foreground text-sm font-medium rounded-sm hover:bg-coffee-light transition-colors"
+                    >
+                      Fazer login
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            )
+          ) : (
+            // Saved Articles - Restricted
+            isAuthenticated ? (
+              isLoading ? (
+                <FeedSkeleton count={2} />
+              ) : savedArticles.length === 0 ? (
+                <div className="p-12 text-center border-b border-border">
+                  <Bookmark className="h-8 w-8 text-muted-foreground mx-auto mb-3 animate-bounce" />
+                  <p className="text-muted-foreground">Você ainda não salvou nenhum artigo.</p>
+                </div>
+              ) : (
+                <div>
+                  {savedArticles.map((article) => (
+                    <ArticleRow key={article.id} article={article} />
+                  ))}
+                </div>
+              )
+            ) : (
+              // Unauthorized State - Terminal Style
+              <div className="p-8">
+                <div className="max-w-md mx-auto border border-border rounded-sm overflow-hidden bg-card">
+                  <div className="bg-secondary/50 px-4 py-2 border-b border-border">
+                    <div className="flex items-center gap-2">
+                      <div className="w-3 h-3 rounded-full bg-destructive/60" />
+                      <div className="w-3 h-3 rounded-full bg-warning/60" />
+                      <div className="w-3 h-3 rounded-full bg-success/60" />
+                      <span className="ml-2 font-mono text-xs text-muted-foreground">auth_check</span>
+                    </div>
+                  </div>
+                  <div className="p-6 font-mono text-sm space-y-2">
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground select-none">$</span>
+                      <span className="text-muted-foreground">checking authorization...</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-destructive select-none">!</span>
+                      <div>
+                        <span className="text-destructive">error</span>
+                        <span className="text-muted-foreground">[</span>
+                        <span className="text-warning">401</span>
+                        <span className="text-muted-foreground">]:</span>{" "}
+                        <span className="text-foreground/80">unauthorized</span>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2 pt-2">
+                      <span className="text-muted-foreground select-none">&gt;</span>
+                      <span className="text-muted-foreground">
+                        Token inválido ou expirado.
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="text-muted-foreground select-none">&gt;</span>
+                      <span className="text-muted-foreground">
+                        Faça login para ver seus artigos salvos.
                       </span>
                     </div>
                   </div>
