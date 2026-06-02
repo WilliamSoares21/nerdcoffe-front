@@ -27,6 +27,7 @@ export interface Article {
   publishedAt?: string | null
   isBookmarked?: boolean
   userUpvoted?: boolean
+  published?: boolean
 }
 
 export interface Tag {

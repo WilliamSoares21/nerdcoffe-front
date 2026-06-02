@@ -213,4 +213,44 @@ export async function getSavedArticlesAction() {
   }
 }
 
+export async function publishArticleAction(id: string) {
+  try {
+    const response = await apiClient<any>(`/articles/${id}/publish`, {
+      method: "PATCH",
+    })
+    
+    if (response && response.success === false) {
+      return { error: response.message || "Erro ao publicar artigo" }
+    }
+    
+    revalidatePath("/feed")
+    revalidatePath("/articles")
+    revalidatePath(`/articles/${id}`)
+    return { success: true, data: response.data || response }
+  } catch (error: any) {
+    console.error("publishArticleAction error:", error)
+    return { error: error.message || "Erro ao conectar com o servidor" }
+  }
+}
+
+export async function archiveArticleAction(id: string) {
+  try {
+    const response = await apiClient<any>(`/articles/${id}/archive`, {
+      method: "PATCH",
+    })
+    
+    if (response && response.success === false) {
+      return { error: response.message || "Erro ao arquivar artigo" }
+    }
+    
+    revalidatePath("/feed")
+    revalidatePath("/articles")
+    revalidatePath(`/articles/${id}`)
+    return { success: true, data: response.data || response }
+  } catch (error: any) {
+    console.error("archiveArticleAction error:", error)
+    return { error: error.message || "Erro ao conectar com o servidor" }
+  }
+}
+
 

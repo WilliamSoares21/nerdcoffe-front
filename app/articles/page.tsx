@@ -19,6 +19,7 @@ import type { Article } from "@/lib/types"
 import { Button } from "@/components/ui/button"
 import { getPublicArticlesAction, getMyArticlesAction, getSavedArticlesAction } from "@/app/actions/articles"
 import { calculateReadingTime } from "@/lib/utils"
+import { Badge } from "@/components/ui/badge"
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("pt-BR", {
@@ -42,12 +43,19 @@ function ArticleRow({ article }: { article: Article }) {
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <Link 
-          href={`/articles/${article.id}`}
-          className="font-medium hover:text-coffee transition-colors line-clamp-1"
-        >
-          {article.title}
-        </Link>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Link 
+            href={`/articles/${article.id}`}
+            className="font-medium hover:text-coffee transition-colors line-clamp-1"
+          >
+            {article.title}
+          </Link>
+          {article.published ? (
+            <Badge variant="outline">Público</Badge>
+          ) : (
+            <Badge variant="secondary">Arquivado / Rascunho</Badge>
+          )}
+        </div>
         
         {article.summary && (
           <p className="text-sm text-muted-foreground line-clamp-1 mt-1">

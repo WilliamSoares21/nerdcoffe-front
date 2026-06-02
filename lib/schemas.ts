@@ -32,6 +32,7 @@ export const ArticleSchema = z.object({
   publishedAt: z.string().nullable().optional().default(null),
   isBookmarked: z.boolean().optional().default(false),
   userUpvoted: z.boolean().default(false).or(z.null().transform(() => false)),
+  published: z.boolean().optional().default(false),
 })
 
 // Generic ApiResponse Wrapper Schema

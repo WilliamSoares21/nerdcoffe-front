@@ -166,6 +166,7 @@ export default async function ArticleDetailPage({
             isAuthor={isAuthor}
             author={article.author}
             initialIsUpvoted={article.userUpvoted}
+            isPublished={article.published ?? false}
           />
         </div>
       </main>

@@ -3,10 +3,10 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Bookmark, ChevronUp, Edit3, MessageSquare, Share2, Trash2 } from "lucide-react"
+import { Archive, Bookmark, ChevronUp, Edit3, Globe, MessageSquare, Share2, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
-import { deleteArticleAction, upvoteArticleAction, saveArticleAction } from "@/app/actions/articles"
+import { deleteArticleAction, upvoteArticleAction, saveArticleAction, publishArticleAction, archiveArticleAction } from "@/app/actions/articles"
 import { useAuth } from "@/lib/auth-context"
 import {
   AlertDialog,
@@ -117,6 +117,7 @@ interface FooterActionsProps {
   }
   initialIsUpvoted?: boolean
   initialIsBookmarked?: boolean
+  isPublished: boolean
 }
 
 export function ArticleFooterActions({
@@ -127,6 +128,7 @@ export function ArticleFooterActions({
   author,
   initialIsUpvoted = false,
   initialIsBookmarked = false,
+  isPublished,
 }: FooterActionsProps) {
   const router = useRouter()
   const { user } = useAuth()
@@ -137,6 +139,31 @@ export function ArticleFooterActions({
   const [deleting, setDeleting] = useState(false)
   const [isBookmarked, setIsBookmarked] = useState(initialIsBookmarked)
   const [isSaving, setIsSaving] = useState(false)
+  const [isPublishingOrArchiving, setIsPublishingOrArchiving] = useState(false)
+
+  const handlePublish = async () => {
+    setIsPublishingOrArchiving(true)
+    const res = await publishArticleAction(articleId)
+    if (res.error) {
+      toast.error(`Falha ao publicar artigo: ${res.error}`)
+    } else {
+      toast.success("Artigo publicado com sucesso!")
+      router.refresh()
+    }
+    setIsPublishingOrArchiving(false)
+  }
+
+  const handleArchive = async () => {
+    setIsPublishingOrArchiving(true)
+    const res = await archiveArticleAction(articleId)
+    if (res.error) {
+      toast.error(`Falha ao arquivar artigo: ${res.error}`)
+    } else {
+      toast.success("Artigo arquivado com sucesso!")
+      router.refresh()
+    }
+    setIsPublishingOrArchiving(false)
+  }
 
   const handleBookmark = async () => {
     if (isSaving) return
@@ -255,6 +282,30 @@ export function ArticleFooterActions({
       {/* Author specific actions (Edit/Delete) */}
       {hasAccess && (
         <div className="flex items-center gap-2">
+          {isPublished ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleArchive}
+              disabled={isPublishingOrArchiving}
+              className="gap-1.5 border-border hover:bg-secondary text-xs"
+            >
+              <Archive className="h-3.5 w-3.5" />
+              Arquivar
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePublish}
+              disabled={isPublishingOrArchiving}
+              className="gap-1.5 border-border hover:bg-secondary text-xs"
+            >
+              <Globe className="h-3.5 w-3.5" />
+              Publicar
+            </Button>
+          )}
+
           <Button 
             asChild
             variant="outline"
