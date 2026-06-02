@@ -164,3 +164,14 @@
   pointer-events: none;
 }
 
+/* Custom theme for @uiw/react-md-editor and @uiw/react-markdown-preview */
+[data-color-mode*='dark'] {
+  --color-canvas-default: #1e1e2e;
+  --color-canvas-subtle: #181825;
+  --color-fg-default: #cdd6f4;
+  --color-accent-fg: #cba6f7;
+  --color-accent: #cba6f7;
+  --color-border-default: rgba(0, 0, 0, 0.25);
+}
+
+
