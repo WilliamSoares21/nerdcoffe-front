@@ -1,7 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
+import { useState } from "react"
+import { Input } from "@/components/ui/input"
 import { Coffee, LogOut, User as UserIcon, Menu, Flame, FileText, Users } from "lucide-react"
 import { useAuth } from "@/lib/auth-context"
 import { logoutAction } from "@/app/actions/auth"
@@ -33,6 +35,15 @@ export function Header() {
   const { user, isAuthenticated } = useAuth()
   const pathname = usePathname()
   const isLandingPage = pathname === "/"
+  const router = useRouter()
+  const [searchQuery, setSearchQuery] = useState("")
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/feed?q=${encodeURIComponent(searchQuery.trim())}`)
+    }
+  }
 
   const handleLogout = async () => {
     await logoutAction()
@@ -46,7 +57,7 @@ export function Header() {
           {!isLandingPage && (
             <Sheet>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden mr-1">
+                <Button variant="ghost" size="icon" className="flex lg:hidden mr-1">
                   <Menu className="h-5 w-5" />
                   <span className="sr-only">Menu</span>
                 </Button>
@@ -75,7 +86,7 @@ export function Header() {
                   ))}
                   {isAuthenticated && (
                     <Link
-                      href="/articles"
+                      href="/articles?tab=my"
                       className={`flex items-center gap-3 px-4 py-3 text-sm font-medium rounded-sm transition-colors ${
                         pathname === "/articles"
                           ? "bg-coffee/10 text-coffee"
@@ -120,11 +131,24 @@ export function Header() {
             </Sheet>
           )}
 
-          <Link href="/" className="flex items-center gap-2.5 group">
+          <Link href={isAuthenticated ? "/feed" : "/"} className="flex items-center gap-2.5 group">
             <Coffee className="h-5 w-5 text-coffee transition-colors group-hover:text-coffee-light" />
             <span className="font-semibold tracking-tight">morning.dev</span>
           </Link>
         </div>
+
+        {/* Search Bar */}
+        {!isLandingPage && (
+          <form onSubmit={handleSearchSubmit} className="hidden sm:block flex-1 max-w-sm mx-4">
+            <Input
+              type="search"
+              placeholder="Pesquisar artigos..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-8 text-xs bg-muted/40"
+            />
+          </form>
+        )}
 
         {/* Right Side: Navigation & User */}
         <div className="flex items-center gap-2 md:gap-4">
@@ -172,7 +196,7 @@ export function Header() {
                   <Link href="/feed" className="cursor-pointer w-full">Feed</Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild>
-                  <Link href="/articles" className="cursor-pointer w-full">Meus Artigos</Link>
+                  <Link href="/articles?tab=my" className="cursor-pointer w-full">Meus Artigos</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 

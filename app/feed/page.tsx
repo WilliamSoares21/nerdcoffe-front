@@ -19,7 +19,7 @@ import {
 } from "@/lib/schemas"
 import { calculateReadingTime } from "@/lib/utils"
 
-import { getPopularTagsAction } from "@/app/actions/articles"
+import { getPopularTagsAction, getPublicArticlesAction, getTrendingArticlesAction } from "@/app/actions/articles"
 
 function formatRelativeTime(dateString: string): string {
   const date = new Date(dateString)
@@ -112,9 +112,9 @@ function ArticleCard({ article }: { article: Article }) {
 export default async function FeedPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tag?: string; sort?: string }>
+  searchParams: Promise<{ tag?: string; sort?: string; q?: string }>
 }) {
-  const { tag: tagFilter, sort = "recent" } = await searchParams
+  const { tag: tagFilter, sort = "recent", q } = await searchParams
   
   let articles: Article[] = []
   let error = false
@@ -126,11 +126,36 @@ export default async function FeedPage({
   )
 
   try {
-    const response = await apiClient<any>(
-      `/articles/public?page=0&size=10${tagFilter ? `&tag=${tagFilter}` : ""}`,
-      { schema: FeedResponseSchema }
-    )
-    articles = response.data?.content ?? []
+    if (q) {
+      const response = await apiClient<any>(
+        `/articles/search?q=${encodeURIComponent(q)}`,
+        { schema: FeedResponseSchema }
+      )
+      const data = response.data || response
+      articles = data.content || (Array.isArray(data) ? data : [])
+    } else if (sort === "trending") {
+      const res = await getTrendingArticlesAction()
+      if (res.success && res.data) {
+        articles = res.data
+      } else {
+        error = true
+      }
+    } else {
+      if (tagFilter) {
+        const response = await apiClient<any>(
+          `/articles/public?page=0&size=50&tag=${tagFilter}`,
+          { schema: FeedResponseSchema }
+        )
+        articles = response.data?.content ?? []
+      } else {
+        const res = await getPublicArticlesAction()
+        if (res.success && res.data) {
+          articles = res.data
+        } else {
+          error = true
+        }
+      }
+    }
   } catch (e) {
     console.error("Failed to fetch articles:", e)
     error = true
@@ -163,12 +188,12 @@ export default async function FeedPage({
                     <div className="flex items-center gap-3">
                       <Flame className="h-5 w-5 text-coffee" />
                       <h1 className="font-semibold">
-                        {tagFilter ? `#${tagFilter}` : "Feed"}
+                        {q ? `Pesquisa: "${q}"` : tagFilter ? `#${tagFilter}` : "Feed"}
                       </h1>
-                      {tagFilter && (
+                      {(tagFilter || q) && (
                         <Link 
                           href="/feed" 
-                          className="text-xs text-muted-foreground hover:text-foreground"
+                          className="text-xs text-muted-foreground hover:text-coffee transition-colors"
                         >
                           limpar
                         </Link>
