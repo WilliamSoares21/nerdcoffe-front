@@ -3,14 +3,36 @@
 import React from "react"
 import dynamic from "next/dynamic"
 
-// Import styles required by @uiw/react-md-editor
 import "@uiw/react-md-editor/markdown-editor.css"
 import "@uiw/react-markdown-preview/markdown.css"
+import Mermaid from "./Mermaid"
 
 const MDEditor = dynamic(
   () => import("@uiw/react-md-editor"),
   { ssr: false }
 )
+
+const getCodeString = (children: any): string => {
+  if (typeof children === "string") return children
+  if (Array.isArray(children)) return children.map(getCodeString).join("")
+  if (typeof children === "object" && children?.props?.children) {
+    return getCodeString(children.props.children)
+  }
+  return ""
+}
+
+const CodeRender = ({ inline, className, children, ...props }: any) => {
+  const match = /language-mermaid/.exec(className || "")
+  if (!inline && match) {
+    const codeString = getCodeString(children).replace(/\n$/, "")
+    return <Mermaid chart={codeString} />
+  }
+  return (
+    <code className={className} {...props}>
+      {children}
+    </code>
+  )
+}
 
 interface RichTextEditorProps {
   value: string
@@ -29,7 +51,13 @@ export function RichTextEditor({ value, onChange, placeholder }: RichTextEditorP
         textareaProps={{
           placeholder: placeholder || "Escreva o conteúdo do seu artigo aqui em Markdown...",
         }}
+        previewOptions={{
+          components: {
+            code: CodeRender
+          }
+        }}
       />
     </div>
   )
 }
+
