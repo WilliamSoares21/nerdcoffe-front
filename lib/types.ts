@@ -85,3 +85,16 @@ export interface SystemStatus {
   database: 'operational' | 'degraded' | 'down'
   latency_ms: number
 }
+
+export interface Comment {
+  id: string | number
+  content: string
+  createdAt: string
+  author: {
+    id: string | number
+    username: string
+    name?: string
+    avatarUrl?: string
+    avatar_url?: string
+  }
+}

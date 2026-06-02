@@ -253,4 +253,35 @@ export async function archiveArticleAction(id: string) {
   }
 }
 
+export async function getCommentsAction(articleId: string) {
+  try {
+    const response = await apiClient<any>(`/articles/${articleId}/comments`)
+    const data = response?.data || response
+    const comments = Array.isArray(data) ? data : (data?.content || [])
+    return { success: true, data: comments }
+  } catch (error: any) {
+    console.error("getCommentsAction error:", error)
+    return { error: error.message || "Erro ao buscar comentários" }
+  }
+}
+
+export async function createCommentAction(articleId: string, content: string) {
+  try {
+    const response = await apiClient<any>(`/articles/${articleId}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ content }),
+    })
+    
+    if (response && response.success === false) {
+      return { error: response.message || "Erro ao criar comentário" }
+    }
+    
+    revalidatePath("/articles/[id]", "page")
+    return { success: true, data: response.data || response }
+  } catch (error: any) {
+    console.error("createCommentAction error:", error)
+    return { error: error.message || "Erro ao conectar com o servidor" }
+  }
+}
+
 

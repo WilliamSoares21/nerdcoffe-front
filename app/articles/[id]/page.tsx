@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button"
 import { ArticleHeaderActions, ArticleFooterActions } from "@/components/article-actions"
 import { calculateReadingTime } from "@/lib/utils"
 import MarkdownRenderer from "@/components/markdown-renderer"
+import { CommentsSection } from "@/components/comments-section"
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("pt-BR", {
@@ -168,6 +169,9 @@ export default async function ArticleDetailPage({
             initialIsUpvoted={article.userUpvoted}
             isPublished={article.published ?? false}
           />
+
+          {/* Comments Section */}
+          <CommentsSection articleId={article.id} />
         </div>
       </main>
     </div>
