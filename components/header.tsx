@@ -198,6 +198,9 @@ export function Header() {
                 <DropdownMenuItem asChild>
                   <Link href="/articles?tab=my" className="cursor-pointer w-full">Meus Artigos</Link>
                 </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/settings" className="cursor-pointer w-full">Configurações</Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   className="text-destructive focus:text-destructive cursor-pointer"
