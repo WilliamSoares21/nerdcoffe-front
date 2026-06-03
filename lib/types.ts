@@ -92,7 +92,8 @@ export interface Comment {
   createdAt: string
   author: {
     id: string | number
-    username: string
+    username?: string
+    email?: string
     name?: string
     avatarUrl?: string
     avatar_url?: string

@@ -114,13 +114,17 @@ export default async function ArticleDetailPage({
 
             <div className="flex items-center justify-between py-6 border-y border-border">
               <div className="flex items-center gap-4">
-                <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center border border-border">
-                  <span className="text-sm font-mono uppercase text-muted-foreground">
-                    {article.author.name?.charAt(0) || article.author.username?.charAt(0)}
-                  </span>
-                </div>
+                <Link href={`/user/${encodeURIComponent(article.author.username || article.author.email || '')}`} className="hover:opacity-85 transition-opacity">
+                  <div className="h-10 w-10 rounded-full bg-secondary flex items-center justify-center border border-border">
+                    <span className="text-sm font-mono uppercase text-muted-foreground">
+                      {article.author.name?.charAt(0) || article.author.username?.charAt(0) || article.author.email?.charAt(0)}
+                    </span>
+                  </div>
+                </Link>
                 <div>
-                  <div className="text-sm font-medium">@{article.author.username || article.author.name}</div>
+                  <Link href={`/user/${encodeURIComponent(article.author.username || article.author.email || '')}`} className="hover:text-coffee transition-colors">
+                    <div className="text-sm font-medium">@{article.author.username || article.author.email}</div>
+                  </Link>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground mt-0.5">
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3 w-3" />

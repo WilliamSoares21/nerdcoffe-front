@@ -25,15 +25,29 @@ export async function getArticleAction(id: string) {
   }
 }
 
-export async function getPublicArticlesAction() {
+export async function getPublicArticlesAction(filters?: { author?: string; tag?: string }) {
   try {
-    const response = await apiClient<any>("/articles/public?page=0&size=50")
+    const params = new URLSearchParams({
+      page: "0",
+      size: "50",
+    })
+    
+    if (filters?.author) {
+      params.append("author", filters.author)
+    }
+    if (filters?.tag) {
+      params.append("tag", filters.tag)
+    }
+
+    const url = `/articles/public?${params.toString()}`
+    const response = await apiClient<any>(url)
     return { success: true, data: response.data?.content ?? [] }
   } catch (error: any) {
     console.error("getPublicArticlesAction error:", error)
     return { error: error.message || "Erro ao buscar artigos públicos" }
   }
 }
+
 
 export async function getTrendingArticlesAction() {
   try {
