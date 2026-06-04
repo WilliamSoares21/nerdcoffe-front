@@ -41,7 +41,7 @@ export async function getPublicArticlesAction(filters?: { author?: string; tag?:
 
     const url = `/articles/public?${params.toString()}`
     const response = await apiClient<any>(url)
-    return { success: true, data: response.data?.content ?? [] }
+    return { success: true, data: response.data?.content || (Array.isArray(response.data) ? response.data : []) }
   } catch (error: any) {
     console.error("getPublicArticlesAction error:", error)
     return { error: error.message || "Erro ao buscar artigos públicos" }
