@@ -30,6 +30,7 @@ export default function SettingsPage() {
         setIsLoadingProfile(false)
       } else if (user) {
         setName(user.name || "")
+        setBio((user as any).bio || "")
         setAvatarUrl(user.avatarUrl || "")
         setIsLoadingProfile(false)
       }
