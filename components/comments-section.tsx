@@ -137,42 +137,71 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
           </div>
         ) : (
           comments.map((comment) => {
-            const authorIdentifier = comment.author.username || comment.author.email || ""
-            const authorName = comment.author.name || `@${authorIdentifier}` || "Usuário"
+            const authorUsername = comment.author.username
+            const authorName = comment.author.name || (authorUsername ? `@${authorUsername}` : "Usuário")
             const avatarUrl = comment.author.avatarUrl || comment.author.avatar_url
-            const initials = authorIdentifier.charAt(0) || "U"
+            const initials = (comment.author.name || authorUsername || "Usuário").charAt(0).toUpperCase()
             
             return (
               <div 
                 key={comment.id} 
                 className="flex items-start gap-3 p-3 rounded-md bg-secondary/10 border border-border/50 hover:bg-secondary/20 transition-all"
               >
-                <Link href={`/user/${encodeURIComponent(authorIdentifier)}`}>
-                  <Avatar className="h-8 w-8 border border-border hover:opacity-80 transition-opacity">
-                    {avatarUrl ? (
-                      <AvatarImage src={avatarUrl} alt={authorName} />
-                    ) : null}
-                    <AvatarFallback className="text-[10px] font-mono font-bold bg-secondary text-muted-foreground uppercase">
-                      {initials}
-                    </AvatarFallback>
-                  </Avatar>
-                </Link>
-                
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center gap-2">
-                    <Link href={`/user/${encodeURIComponent(authorIdentifier)}`} className="hover:text-coffee transition-colors">
-                      <span className="text-sm font-semibold text-foreground">
-                        {authorName}
-                      </span>
+                {authorUsername ? (
+                  <>
+                    <Link href={`/user/${encodeURIComponent(authorUsername)}`}>
+                      <Avatar className="h-8 w-8 border border-border hover:opacity-80 transition-opacity">
+                        {avatarUrl ? (
+                          <AvatarImage src={avatarUrl} alt={authorName} />
+                        ) : null}
+                        <AvatarFallback className="text-[10px] font-mono font-bold bg-secondary text-muted-foreground uppercase">
+                          {initials}
+                        </AvatarFallback>
+                      </Avatar>
                     </Link>
-                    <span className="text-xs text-muted-foreground">
-                      {formatRelativeTime(comment.createdAt)}
-                    </span>
-                  </div>
-                  <p className="text-sm text-foreground/90 whitespace-pre-wrap">
-                    {comment.content}
-                  </p>
-                </div>
+                    
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Link href={`/user/${encodeURIComponent(authorUsername)}`} className="hover:text-coffee transition-colors">
+                          <span className="text-sm font-semibold text-foreground">
+                            {authorName}
+                          </span>
+                        </Link>
+                        <span className="text-xs text-muted-foreground">
+                          {formatRelativeTime(comment.createdAt)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-foreground/90 whitespace-pre-wrap">
+                        {comment.content}
+                      </p>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Avatar className="h-8 w-8 border border-border">
+                      {avatarUrl ? (
+                        <AvatarImage src={avatarUrl} alt={authorName} />
+                      ) : null}
+                      <AvatarFallback className="text-[10px] font-mono font-bold bg-secondary text-muted-foreground uppercase">
+                        {initials}
+                      </AvatarFallback>
+                    </Avatar>
+                    
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-foreground">
+                          {authorName}
+                        </span>
+                        <span className="text-xs text-muted-foreground">
+                          {formatRelativeTime(comment.createdAt)}
+                        </span>
+                      </div>
+                      <p className="text-sm text-foreground/90 whitespace-pre-wrap">
+                        {comment.content}
+                      </p>
+                    </div>
+                  </>
+                )}
               </div>
             )
           })

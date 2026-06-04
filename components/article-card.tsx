@@ -45,22 +45,41 @@ export function ArticleCard({ article }: { article: Article }) {
 
           {/* Meta with Standardized Author */}
           <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-            <Link href={`/user/${encodeURIComponent(article.author.username || article.author.email || '')}`} className="flex items-center gap-1.5 hover:text-coffee transition-colors">
-              {article.author.avatarUrl ? (
-                <img 
-                  src={article.author.avatarUrl} 
-                  alt={authorName} 
-                  className="h-5 w-5 rounded-full object-cover border border-border"
-                />
-              ) : (
-                <div className="h-5 w-5 rounded-full bg-secondary flex items-center justify-center border border-border text-[10px] font-mono uppercase font-bold text-muted-foreground">
-                  {initials}
-                </div>
-              )}
-              <span className="font-mono font-medium text-foreground/85">
-                {article.author.name || `@${article.author.username || article.author.email}`}
-              </span>
-            </Link>
+            {article.author.username ? (
+              <Link href={`/user/${encodeURIComponent(article.author.username)}`} className="flex items-center gap-1.5 hover:text-coffee transition-colors">
+                {article.author.avatarUrl ? (
+                  <img 
+                    src={article.author.avatarUrl} 
+                    alt={authorName} 
+                    className="h-5 w-5 rounded-full object-cover border border-border"
+                  />
+                ) : (
+                  <div className="h-5 w-5 rounded-full bg-secondary flex items-center justify-center border border-border text-[10px] font-mono uppercase font-bold text-muted-foreground">
+                    {initials}
+                  </div>
+                )}
+                <span className="font-mono font-medium text-foreground/85">
+                  {article.author.name || `@${article.author.username}`}
+                </span>
+              </Link>
+            ) : (
+              <div className="flex items-center gap-1.5">
+                {article.author.avatarUrl ? (
+                  <img 
+                    src={article.author.avatarUrl} 
+                    alt={authorName} 
+                    className="h-5 w-5 rounded-full object-cover border border-border"
+                  />
+                ) : (
+                  <div className="h-5 w-5 rounded-full bg-secondary flex items-center justify-center border border-border text-[10px] font-mono uppercase font-bold text-muted-foreground">
+                    {initials}
+                  </div>
+                )}
+                <span className="font-mono font-medium text-foreground/85">
+                  {article.author.name || "autor"}
+                </span>
+              </div>
+            )}
 
             <span className="flex items-center gap-1">
               <Clock className="h-3 w-3" />
