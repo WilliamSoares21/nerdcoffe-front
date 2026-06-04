@@ -6,7 +6,7 @@ import { cookies } from "next/headers"
 
 export async function getUserProfileAction(username: string) {
   try {
-    const response = await apiClient<any>(`/users/${username}`)
+    const response = await apiClient<any>(`/users/${encodeURIComponent(username)}`)
     return { success: true, data: response.data || response }
   } catch (error: any) {
     console.error(`getUserProfileAction error for username ${username}:`, error)

@@ -8,7 +8,9 @@ import { ArticleCard } from "@/components/article-card"
 
 function formatDate(dateString: string): string {
   try {
-    return new Date(dateString).toLocaleDateString("pt-PT", {
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "N/D";
+    return date.toLocaleDateString("pt-PT", {
       month: "long",
       year: "numeric",
     })
@@ -36,7 +38,7 @@ export default async function UserProfilePage({
           <div className="max-w-md w-full text-center space-y-6 border border-border p-8 rounded-lg bg-secondary/10">
             <h2 className="text-2xl font-bold tracking-tight">Utilizador não encontrado</h2>
             <p className="text-sm text-muted-foreground">
-              O utilizador @{username} que tentou aceder não existe ou a sua conta foi desativada.
+              O utilizador @{decodedUsername} que tentou aceder não existe ou a sua conta foi desativada.
             </p>
             <Link
               href="/feed"
