@@ -147,9 +147,9 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
                 key={comment.id} 
                 className="flex items-start gap-3 p-3 rounded-md bg-secondary/10 border border-border/50 hover:bg-secondary/20 transition-all"
               >
-                {authorUsername ? (
+                {authorUsername && authorUsername.trim() !== "" ? (
                   <>
-                    <Link href={`/user/${encodeURIComponent(authorUsername)}`}>
+                    <Link href={`/user/${authorUsername}`}>
                       <Avatar className="h-8 w-8 border border-border hover:opacity-80 transition-opacity">
                         {avatarUrl ? (
                           <AvatarImage src={avatarUrl} alt={authorName} />
@@ -162,7 +162,7 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
                     
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center gap-2">
-                        <Link href={`/user/${encodeURIComponent(authorUsername)}`} className="hover:text-coffee transition-colors">
+                        <Link href={`/user/${authorUsername}`} className="hover:text-coffee transition-colors">
                           <span className="text-sm font-semibold text-foreground">
                             {authorName}
                           </span>

@@ -45,8 +45,8 @@ export function ArticleCard({ article }: { article: Article }) {
 
           {/* Meta with Standardized Author */}
           <div className="flex flex-wrap items-center gap-4 text-xs text-muted-foreground">
-            {article.author.username ? (
-              <Link href={`/user/${encodeURIComponent(article.author.username)}`} className="flex items-center gap-1.5 hover:text-coffee transition-colors">
+            {article.author.username && article.author.username.trim() !== "" ? (
+              <Link href={`/user/${article.author.username}`} className="flex items-center gap-1.5 hover:text-coffee transition-colors">
                 {article.author.avatarUrl ? (
                   <img 
                     src={article.author.avatarUrl} 

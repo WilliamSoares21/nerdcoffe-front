@@ -14,7 +14,7 @@ export async function getUserProfileAction(username: string) {
   }
 }
 
-export async function updateProfileAction(data: { name: string; bio?: string; avatarUrl?: string }) {
+export async function updateProfileAction(data: { name: string; username: string; bio?: string; avatarUrl?: string }) {
   try {
     const response = await apiClient<any>("/users/profile", {
       method: "PUT",
@@ -32,6 +32,7 @@ export async function updateProfileAction(data: { name: string; bio?: string; av
         const newUserData = {
           ...currentUser,
           name: updatedUser.name || data.name,
+          username: updatedUser.username || data.username,
           avatarUrl: updatedUser.avatarUrl || updatedUser.avatar_url || data.avatarUrl,
         }
         cookieStore.set("auth_user", JSON.stringify(newUserData), {

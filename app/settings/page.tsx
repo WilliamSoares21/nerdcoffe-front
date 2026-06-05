@@ -9,6 +9,7 @@ import { User as UserIcon, Settings, CheckCircle2, AlertTriangle, Loader2 } from
 export default function SettingsPage() {
   const { user, isAuthenticated } = useAuth()
   const [name, setName] = useState("")
+  const [username, setUsername] = useState("")
   const [bio, setBio] = useState("")
   const [avatarUrl, setAvatarUrl] = useState("")
   const [isPending, setIsPending] = useState(false)
@@ -18,18 +19,20 @@ export default function SettingsPage() {
 
   useEffect(() => {
     async function loadProfile() {
-      const username = user ? ((user as any).username || user.email) : null
-      if (username) {
+      const userIdentifier = user ? ((user as any).username || user.email) : null
+      if (userIdentifier) {
         setIsLoadingProfile(true)
-        const res = await getUserProfileAction(username)
+        const res = await getUserProfileAction(userIdentifier)
         if (res.success && res.data) {
           setName(res.data.name || "")
+          setUsername(res.data.username || "")
           setBio(res.data.bio || "")
           setAvatarUrl(res.data.avatarUrl || res.data.avatar_url || "")
         }
         setIsLoadingProfile(false)
       } else if (user) {
         setName(user.name || "")
+        setUsername((user as any).username || "")
         setBio((user as any).bio || "")
         setAvatarUrl(user.avatarUrl || "")
         setIsLoadingProfile(false)
@@ -46,7 +49,7 @@ export default function SettingsPage() {
     setSuccess(null)
     setIsPending(true)
 
-    const result = await updateProfileAction({ name, bio, avatarUrl })
+    const result = await updateProfileAction({ name, username, bio, avatarUrl })
     
     if (result.success) {
       setSuccess("Perfil atualizado com sucesso!")
@@ -139,6 +142,27 @@ export default function SettingsPage() {
                     required
                     className="w-full px-3 py-2.5 bg-input border border-border rounded-sm text-sm placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-coffee focus:border-coffee transition-colors"
                   />
+                </div>
+
+                {/* Username */}
+                <div className="space-y-2">
+                  <label htmlFor="username" className="text-sm font-medium">
+                    Username
+                  </label>
+                  <div className="flex rounded-sm overflow-hidden border border-border focus-within:ring-1 focus-within:ring-coffee focus-within:border-coffee transition-colors bg-input">
+                    <span className="inline-flex items-center px-3 bg-secondary/30 border-r border-border text-muted-foreground text-sm font-mono select-none">
+                      @
+                    </span>
+                    <input
+                      id="username"
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="username"
+                      required
+                      className="w-full px-3 py-2.5 bg-transparent text-sm placeholder:text-muted-foreground/50 focus:outline-none transition-colors"
+                    />
+                  </div>
                 </div>
 
                 {/* Avatar URL */}
