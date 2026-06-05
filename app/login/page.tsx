@@ -155,7 +155,7 @@ export default function LoginPage() {
             <div className="px-6 py-4 bg-secondary/20 border-t border-border">
               <p className="text-sm text-muted-foreground text-center">
                 Não tem conta?{" "}
-                <Link href="/login" className="text-coffee hover:text-coffee-light transition-colors">
+                <Link href="/register" className="text-coffee hover:text-coffee-light transition-colors">
                   Criar agora
                 </Link>
               </p>
