@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/auth-context"
 import { getCommentsAction, createCommentAction } from "@/app/actions/articles"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
@@ -18,6 +19,7 @@ interface CommentsSectionProps {
 }
 
 export function CommentsSection({ articleId }: CommentsSectionProps) {
+  const router = useRouter()
   const { isAuthenticated, user } = useAuth()
   const [comments, setComments] = useState<Comment[]>([])
   const [newComment, setNewComment] = useState("")
@@ -45,6 +47,10 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!isAuthenticated) {
+      router.push("/login")
+      return
+    }
     if (!newComment.trim()) return
 
     setIsLoading(true)
@@ -97,33 +103,25 @@ export function CommentsSection({ articleId }: CommentsSectionProps) {
       </div>
 
       {/* Formulario */}
-      {isAuthenticated ? (
-        <form onSubmit={handleSubmit} className="space-y-3">
-          <Textarea
-            placeholder="O que você achou deste artigo? Compartilhe seus pensamentos..."
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            disabled={isLoading}
-            className="w-full min-h-[100px] bg-secondary/20 border-border focus:border-coffee"
-          />
-          <div className="flex justify-end">
-            <Button
-              type="submit"
-              disabled={isLoading || !newComment.trim()}
-              className="bg-coffee hover:bg-coffee-light text-accent-foreground gap-1.5 text-xs font-medium"
-            >
-              <Send className="h-3.5 w-3.5" />
-              {isLoading ? "Enviando..." : "Comentar"}
-            </Button>
-          </div>
-        </form>
-      ) : (
-        <div className="bg-secondary/20 border border-border rounded-md p-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            Você precisa estar logado para comentar.
-          </p>
+      <form onSubmit={handleSubmit} className="space-y-3">
+        <Textarea
+          placeholder="O que você achou deste artigo? Compartilhe seus pensamentos..."
+          value={newComment}
+          onChange={(e) => setNewComment(e.target.value)}
+          disabled={isLoading}
+          className="w-full min-h-[100px] bg-secondary/20 border-border focus:border-coffee"
+        />
+        <div className="flex justify-end">
+          <Button
+            type="submit"
+            disabled={isLoading || (isAuthenticated && !newComment.trim())}
+            className="bg-coffee hover:bg-coffee-light text-accent-foreground gap-1.5 text-xs font-medium"
+          >
+            <Send className="h-3.5 w-3.5" />
+            {isLoading ? "Enviando..." : "Comentar"}
+          </Button>
         </div>
-      )}
+      </form>
 
       {/* Lista de Comentarios */}
       <div className="space-y-4 mt-6">

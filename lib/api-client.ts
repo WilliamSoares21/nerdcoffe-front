@@ -1,5 +1,6 @@
 import { cookies } from "next/headers"
 import { z } from "zod"
+import { redirect } from "next/navigation"
 
 const API_BASE_URL = "http://localhost:8080/api/v1"
 
@@ -31,9 +32,17 @@ export async function apiClient<T>(
     headers,
   })
 
+  if (response.status === 401) {
+    if (typeof window !== "undefined") {
+      window.location.href = "/login"
+    } else {
+      redirect("/login")
+    }
+  }
+
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}))
-    throw new Error(errorData.message || `API request failed: ${response.status}`)
+    throw new Error(errorData.message || errorData.error || `API request failed: ${response.status}`)
   }
 
   const rawData = await response.json()

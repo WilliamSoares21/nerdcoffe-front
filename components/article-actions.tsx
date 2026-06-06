@@ -34,6 +34,8 @@ export function ArticleHeaderActions({
   excerpt,
   isBookmarkedInitial = false,
 }: HeaderActionsProps) {
+  const router = useRouter()
+  const { isAuthenticated } = useAuth()
   const [isBookmarked, setIsBookmarked] = useState(isBookmarkedInitial)
   const [isSaving, setIsSaving] = useState(false)
 
@@ -66,6 +68,10 @@ export function ArticleHeaderActions({
   }
 
   const handleBookmark = async () => {
+    if (!isAuthenticated) {
+      router.push("/login")
+      return
+    }
     if (isSaving) return
     setIsSaving(true)
     
@@ -131,7 +137,7 @@ export function ArticleFooterActions({
   isPublished,
 }: FooterActionsProps) {
   const router = useRouter()
-  const { user } = useAuth()
+  const { user, isAuthenticated } = useAuth()
   
   const [count, setCount] = useState(initialUpvotes || 0)
   const [active, setActive] = useState(initialIsUpvoted)
@@ -166,6 +172,10 @@ export function ArticleFooterActions({
   }
 
   const handleBookmark = async () => {
+    if (!isAuthenticated) {
+      router.push("/login")
+      return
+    }
     if (isSaving) return
     setIsSaving(true)
     
@@ -193,6 +203,10 @@ export function ArticleFooterActions({
   const hasAccess = author ? isOwner : isAuthor
 
   const handleUpvote = async () => {
+    if (!isAuthenticated) {
+      router.push("/login")
+      return
+    }
     if (isLoading) return
     setIsLoading(true)
 
