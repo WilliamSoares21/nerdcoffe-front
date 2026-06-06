@@ -401,36 +401,9 @@ export default function SponsorsPage() {
                   <Shield className="h-4 w-4 text-coffee" />
                   <h3 className="font-medium">Privacidade</h3>
                 </div>
-                <ul className="space-y-3 text-sm text-muted-foreground">
-                  {[
-                    "Dados criptografados em trânsito",
-                    "Não compartilhamos com terceiros",
-                    "Conformidade LGPD / GDPR",
-                    "Exclusão sob solicitação"
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-2">
-                      <CheckCircle2 className="h-4 w-4 text-success shrink-0 mt-0.5" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Stats */}
-              <div className="border border-border rounded-sm p-5">
-                <h3 className="font-medium mb-4">Alcance</h3>
-                <div className="space-y-3">
-                  {[
-                    { label: "Leitores ativos", value: "12.4k" },
-                    { label: "Taxa de abertura", value: "68%" },
-                    { label: "Click-through rate", value: "24%" },
-                  ].map((stat) => (
-                    <div key={stat.label} className="flex items-center justify-between">
-                      <span className="text-sm text-muted-foreground">{stat.label}</span>
-                      <span className="font-mono text-sm text-coffee">{stat.value}</span>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Temos um firme compromisso com a privacidade e a não comercialização de dados de nossos usuários e parceiros.
+                </p>
               </div>
 
               {/* Contact */}
