@@ -56,15 +56,15 @@ export async function registerAction(formData: any) {
       body: JSON.stringify(formData),
     })
 
-    const result: ApiResponseDto<any> = await response.json()
+    const result = await response.json().catch(() => ({}))
 
     if (!response.ok) {
-      return { error: result.message || "Erro ao criar conta" }
+      return { error: result?.message || result?.error || "Erro ao criar conta" }
     }
     
     // Success - redirect to login
-  } catch (error) {
-    return { error: "Erro de conexão com o servidor" }
+  } catch (error: any) {
+    return { error: error.message || "Erro de conexão com o servidor" }
   }
 
   redirect("/login?registered=true")
