@@ -80,22 +80,22 @@ export function Sidebar() {
 
       {/* Trending Tags */}
       {trendingTags.length > 0 && (
-        <div className="px-5 py-4 border-t border-sidebar-border">
-          <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">
+        <div className="px-4 py-3 border-t border-sidebar-border">
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">
             Trending
           </h3>
-          <div className="space-y-1.5">
-            {trendingTags.map((tag) => (
+          <div className="space-y-1">
+            {trendingTags.slice(0, 5).map((tag) => (
               <Link
                 key={tag.name}
                 href={`/feed?tag=${tag.name}`}
-                className="flex items-center justify-between py-1.5 px-2 text-sm text-muted-foreground hover:text-foreground hover:bg-sidebar-accent rounded-sm transition-colors group"
+                className="flex items-center justify-between py-1 px-1.5 text-sm text-muted-foreground hover:text-foreground hover:bg-sidebar-accent rounded-sm transition-colors group"
               >
-                <span className="flex items-center gap-1.5">
-                  <Hash className="h-3 w-3 text-coffee opacity-60" />
-                  <span className="font-mono text-xs">{tag.name}</span>
+                <span className="flex items-center gap-1.5 min-w-0">
+                  <Hash className="h-3 w-3 text-coffee opacity-60 shrink-0" />
+                  <span className="font-mono text-xs truncate">{tag.name}</span>
                 </span>
-                <span className="font-mono text-xs text-muted-foreground/60 group-hover:text-muted-foreground">
+                <span className="font-mono text-xs text-muted-foreground/60 group-hover:text-muted-foreground shrink-0 ml-2">
                   {tag.articles_count ?? tag.count ?? 0}
                 </span>
               </Link>
