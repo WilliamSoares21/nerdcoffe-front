@@ -49,7 +49,7 @@ export default function SettingsPage() {
     setSuccess(null)
     setIsPending(true)
 
-    const result = await updateProfileAction({ name, username, bio, avatarUrl })
+    const result = await updateProfileAction({ name, username: username.toLowerCase(), bio, avatarUrl })
     
     if (result.success) {
       setSuccess("Perfil atualizado com sucesso!")
@@ -157,7 +157,7 @@ export default function SettingsPage() {
                       id="username"
                       type="text"
                       value={username}
-                      onChange={(e) => setUsername(e.target.value)}
+                      onChange={(e) => setUsername(e.target.value.toLowerCase())}
                       placeholder="username"
                       required
                       className="w-full px-3 py-2.5 bg-transparent text-sm placeholder:text-muted-foreground/50 focus:outline-none transition-colors"
