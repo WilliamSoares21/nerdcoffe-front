@@ -1,4 +1,5 @@
 import Link from "next/link"
+import { isRedirectError } from "next/dist/client/components/redirect-error"
 import { 
   ChevronUp, 
   MessageSquare, 
@@ -71,6 +72,7 @@ export default async function FeedPage({
       }
     }
   } catch (e) {
+    if (isRedirectError(e)) throw e
     console.error("Failed to fetch articles:", e)
     error = true
   }
@@ -82,6 +84,7 @@ export default async function FeedPage({
       popularTags = resTags.data
     }
   } catch (e) {
+    if (isRedirectError(e)) throw e
     console.error("Failed to fetch popular tags in FeedPage:", e)
   }
 
@@ -164,25 +167,25 @@ export default async function FeedPage({
 
             {/* Right Sidebar - Tags */}
             {popularTags.length > 0 && (
-              <aside className="hidden xl:block w-72 p-4">
-                <div className="sticky top-4">
-                  <h2 className="flex items-center gap-2 text-sm font-medium text-muted-foreground mb-4">
-                    <Hash className="h-4 w-4" />
+              <aside className="hidden xl:block w-64 p-3">
+                <div className="sticky top-20">
+                  <h2 className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 px-1">
+                    <Hash className="h-3.5 w-3.5" />
                     Tags populares
                   </h2>
-                  <div className="space-y-1">
-                    {popularTags.map((tag) => (
+                  <div className="space-y-0.5">
+                    {popularTags.slice(0, 5).map((tag) => (
                       <Link
                         key={tag.name}
                         href={`/feed?tag=${tag.name}${sort !== "recent" ? `&sort=${sort}` : ""}`}
-                        className={`flex items-center justify-between py-2 px-3 rounded-sm transition-colors ${
+                        className={`flex items-center justify-between py-1 px-1.5 rounded-sm transition-colors text-sm min-w-0 ${
                           tagFilter === tag.name
                             ? "bg-coffee/20 text-coffee"
                             : "hover:bg-secondary text-muted-foreground hover:text-foreground"
                         }`}
                       >
-                        <span className="font-mono text-sm">#{tag.name}</span>
-                        <span className="font-mono text-xs opacity-60">
+                        <span className="font-mono truncate mr-2">#{tag.name}</span>
+                        <span className="font-mono text-xs opacity-60 shrink-0">
                           {tag.articles_count ?? tag.count ?? 0}
                         </span>
                       </Link>

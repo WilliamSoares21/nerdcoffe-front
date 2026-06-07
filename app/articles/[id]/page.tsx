@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { notFound } from "next/navigation"
+import { isRedirectError } from "next/dist/client/components/redirect-error"
 import { cookies } from "next/headers"
 import { 
   ChevronLeft, 
@@ -47,6 +48,7 @@ export default async function ArticleDetailPage({
     })
     article = response.data
   } catch (e) {
+    if (isRedirectError(e)) throw e
     console.error(`Failed to fetch article ${id}:`, e)
     error = true
   }
