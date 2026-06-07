@@ -279,23 +279,60 @@ export async function getCommentsAction(articleId: string) {
   }
 }
 
-export async function createCommentAction(articleId: string, content: string) {
+export async function createCommentAction(articleId: string, content: string, parentId?: string | number | null) {
   try {
     const response = await apiClient<any>(`/articles/${articleId}/comments`, {
       method: "POST",
-      body: JSON.stringify({ content }),
+      body: JSON.stringify({ content, parentId }),
     })
     
     if (response && response.success === false) {
       return { error: response.message || "Erro ao criar comentário" }
     }
     
-    revalidatePath("/articles/[id]", "page")
+    revalidatePath("/", "layout")
     return { success: true, data: response.data || response }
   } catch (error: any) {
     console.error("createCommentAction error:", error)
     return { error: error.message || "Erro ao conectar com o servidor" }
   }
 }
+
+export async function toggleCommentLikeAction(commentId: string | number) {
+  try {
+    const response = await apiClient<any>(`/comments/${commentId}/upvote`, {
+      method: "POST",
+    })
+    
+    if (response && response.success === false) {
+      return { error: response.message || "Erro ao curtir comentário" }
+    }
+    
+    revalidatePath("/", "layout")
+    return { success: true, data: response.data || response }
+  } catch (error: any) {
+    console.error("toggleCommentLikeAction error:", error)
+    return { error: error.message || "Erro ao conectar com o servidor" }
+  }
+}
+
+export async function deleteCommentAction(commentId: string | number) {
+  try {
+    const response = await apiClient<any>(`/comments/${commentId}`, {
+      method: "DELETE",
+    })
+    
+    if (response && response.success === false) {
+      return { error: response.message || "Erro ao deletar comentário" }
+    }
+    
+    revalidatePath("/", "layout")
+    return { success: true, data: response.data || response }
+  } catch (error: any) {
+    console.error("deleteCommentAction error:", error)
+    return { error: error.message || "Erro ao conectar com o servidor" }
+  }
+}
+
 
 

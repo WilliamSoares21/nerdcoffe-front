@@ -3,7 +3,6 @@
 import { apiClient } from "@/lib/api-client"
 import { revalidatePath } from "next/cache"
 import { cookies } from "next/headers"
-
 export async function getUserProfileAction(username: string) {
   try {
     const response = await apiClient<any>(`/users/${encodeURIComponent(username)}`)

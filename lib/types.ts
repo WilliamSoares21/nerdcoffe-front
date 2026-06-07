@@ -90,6 +90,10 @@ export interface Comment {
   id: string | number
   content: string
   createdAt: string
+  parentId?: string | number | null
+  upvoteCount?: number
+  userUpvoted?: boolean
+  replies?: Comment[]
   author: {
     id: string | number
     username?: string
@@ -99,3 +103,4 @@ export interface Comment {
     avatar_url?: string
   }
 }
+
