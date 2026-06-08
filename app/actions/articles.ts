@@ -334,5 +334,24 @@ export async function deleteCommentAction(commentId: string | number) {
   }
 }
 
+export async function searchArticlesAction(query: string, page = 0, size = 10) {
+  try {
+    const params = new URLSearchParams({
+      q: query,
+      page: page.toString(),
+      size: size.toString(),
+    })
+    const url = `/articles/search?${params.toString()}`
+    const response = await apiClient<any>(url)
+    const data = response?.data || response
+    const articles = data?.content || (Array.isArray(data) ? data : [])
+    return { success: true, data: articles }
+  } catch (error: any) {
+    console.error("searchArticlesAction error:", error)
+    return { error: error.message || "Erro ao buscar artigos" }
+  }
+}
+
+
 
 

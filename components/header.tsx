@@ -25,6 +25,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 
+import { SearchBar } from "@/components/search-bar"
+
 const navigation = [
   { name: "Feed", href: "/feed", icon: Flame },
   { name: "Artigos", href: "/articles", icon: FileText },
@@ -36,14 +38,6 @@ export function Header() {
   const pathname = usePathname()
   const isLandingPage = pathname === "/"
   const router = useRouter()
-  const [searchQuery, setSearchQuery] = useState("")
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (searchQuery.trim()) {
-      router.push(`/feed?q=${encodeURIComponent(searchQuery.trim())}`)
-    }
-  }
 
   const handleLogout = async () => {
     await logoutAction()
@@ -139,15 +133,9 @@ export function Header() {
 
         {/* Search Bar */}
         {!isLandingPage && (
-          <form onSubmit={handleSearchSubmit} className="hidden sm:block flex-1 max-w-sm mx-4">
-            <Input
-              type="search"
-              placeholder="Pesquisar artigos..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-8 text-xs bg-muted/40"
-            />
-          </form>
+          <div className="hidden sm:block flex-1 max-w-sm mx-4">
+            <SearchBar />
+          </div>
         )}
 
         {/* Right Side: Navigation & User */}
