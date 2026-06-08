@@ -93,7 +93,7 @@ export default async function ArticleDetailPage({
           </Link>
 
           {/* Article Header */}
-          <header className="mb-12">
+          <header className="mb-12 min-w-0">
             <div className="flex flex-wrap gap-2 mb-6">
               {article.tags.map((tag) => (
                 <span 
@@ -105,11 +105,11 @@ export default async function ArticleDetailPage({
               ))}
             </div>
             
-            <h1 className={`text-4xl font-bold tracking-tight leading-tight ${article.summary ? "mb-4" : "mb-8"}`}>
+            <h1 className={`text-4xl font-bold tracking-tight leading-tight break-all ${article.summary ? "mb-4" : "mb-8"}`}>
               {article.title}
             </h1>
             {article.summary && (
-              <p className="text-lg text-muted-foreground mb-8">
+              <p className="text-lg text-muted-foreground mb-8 break-all">
                 {article.summary}
               </p>
             )}

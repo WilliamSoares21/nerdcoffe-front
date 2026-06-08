@@ -19,13 +19,13 @@ export function ArticleCard({ article }: { article: Article }) {
         {/* Content */}
         <div className="flex-1 min-w-0">
           <Link href={`/articles/${article.id}`} className="group">
-            <h2 className="font-semibold text-foreground group-hover:text-coffee transition-colors mb-1.5 leading-snug">
+            <h2 className="font-semibold text-foreground group-hover:text-coffee transition-colors mb-1.5 leading-snug break-all">
               {article.title}
             </h2>
           </Link>
           
           {article.summary && (
-            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+            <p className="text-sm text-muted-foreground line-clamp-2 mb-3 break-all">
               {article.summary}
             </p>
           )}
