@@ -13,6 +13,7 @@ import {
   getArticleAction 
 } from "@/app/actions/articles"
 import { RichTextEditor } from "@/components/rich-text-editor"
+import { toast } from "sonner"
 
 export default function ArticleEditorPage() {
   const router = useRouter()
@@ -21,7 +22,7 @@ export default function ArticleEditorPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth()
 
   const [title, setTitle] = useState("")
-  const [excerpt, setExcerpt] = useState("")
+  const [summary, setSummary] = useState("")
   const [content, setContent] = useState("")
   const [tagsInput, setTagsInput] = useState("")
   
@@ -52,7 +53,7 @@ export default function ArticleEditorPage() {
       } else if (res.data) {
         const art = res.data
         setTitle(art.title)
-        setExcerpt(art.summary || "")
+        setSummary(art.summary || "")
         setContent(art.content || "")
         setTagsInput(art.tags ? art.tags.join(", ") : "")
         setFetchingArticle(false)
@@ -80,7 +81,7 @@ export default function ArticleEditorPage() {
 
     const articleData = {
       title: title.trim(),
-      excerpt: excerpt.trim(),
+      excerpt: summary.trim(),
       content: content.trim(),
       tags,
     }
@@ -93,7 +94,19 @@ export default function ArticleEditorPage() {
     }
 
     if (result.error) {
-      setError(result.error)
+      let errorMessage = "Erro ao processar a requisição."
+      if (typeof result.error === "string") {
+        try {
+          const parsed = JSON.parse(result.error)
+          errorMessage = parsed.message || parsed.error || result.error
+        } catch {
+          errorMessage = result.error
+        }
+      } else if (typeof result.error === "object" && result.error !== null) {
+        errorMessage = (result.error as any).message || (result.error as any).error || JSON.stringify(result.error)
+      }
+      setError(errorMessage)
+      toast.error(errorMessage)
       setIsPending(false)
     } else {
       // Success: redirect to feed
@@ -185,25 +198,33 @@ export default function ArticleEditorPage() {
                       type="text"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
+                      maxLength={120}
                       placeholder="Ex: Primeiros Passos com o Turbopack no Next.js"
                       required
                       className="w-full px-3 py-2.5 bg-input border border-border rounded-sm text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-coffee focus:border-coffee transition-colors"
                     />
+                    <div className="text-xs text-muted-foreground text-right mt-1">
+                      {title.length}/120
+                    </div>
                   </div>
 
                   {/* Excerpt */}
                   <div className="space-y-2">
-                    <label htmlFor="excerpt" className="text-sm font-medium">
+                    <label htmlFor="summary" className="text-sm font-medium">
                       Resumo
                     </label>
                     <input
-                      id="excerpt"
+                      id="summary"
                       type="text"
-                      value={excerpt}
-                      onChange={(e) => setExcerpt(e.target.value)}
+                      value={summary}
+                      onChange={(e) => setSummary(e.target.value)}
+                      maxLength={255}
                       placeholder="Uma frase curta que resume o artigo no feed..."
                       className="w-full px-3 py-2.5 bg-input border border-border rounded-sm text-sm placeholder:text-muted-foreground/40 focus:outline-none focus:ring-1 focus:ring-coffee focus:border-coffee transition-colors"
                     />
+                    <div className="text-xs text-muted-foreground text-right mt-1">
+                      {summary.length}/255
+                    </div>
                   </div>
 
                   {/* Tags */}
