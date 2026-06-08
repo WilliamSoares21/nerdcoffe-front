@@ -32,6 +32,8 @@ export const metadata: Metadata = {
   },
 }
 
+import { Toaster } from '@/components/ui/sonner'
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -58,6 +60,7 @@ export default async function RootLayout({
           <div className="pt-16">
             {children}
           </div>
+          <Toaster />
         </AuthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
