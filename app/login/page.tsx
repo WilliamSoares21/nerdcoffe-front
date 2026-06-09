@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-  const [error, setError] = useState<{ message: string } | null>(null)
+  const [error, setError] = useState<{ message: string; isUnverified?: boolean } | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [isPending, setIsPending] = useState(false)
 
@@ -32,7 +32,7 @@ export default function LoginPage() {
     const result = await loginAction({ email, password })
     
     if (result?.error) {
-      setError({ message: result.error })
+      setError({ message: result.error, isUnverified: result.isUnverified })
       setIsPending(false)
     }
   }
@@ -73,12 +73,26 @@ export default function LoginPage() {
 
               {/* Terminal-style Error Alert */}
               {error && (
-                <div className="mb-6 p-3 bg-destructive/10 border border-destructive/20 rounded-sm font-mono text-sm">
+                <div className={`mb-6 p-3 rounded-sm font-mono text-sm ${
+                  error.isUnverified 
+                    ? "bg-warning/10 border border-warning/20 text-warning" 
+                    : "bg-destructive/10 border border-destructive/20 text-destructive"
+                }`}>
                   <div className="flex items-start gap-2">
-                    <span className="text-destructive select-none">$</span>
+                    <span className="select-none">$</span>
                     <div>
-                      <span className="text-destructive">error:</span>{" "}
-                      <span className="text-foreground/80">{error.message}</span>
+                      <span className="font-semibold">
+                        {error.isUnverified ? "warning:" : "error:"}
+                      </span>{" "}
+                      <span className="text-foreground/80">
+                        {error.isUnverified ? (
+                          <>
+                            Sua conta ainda não está ativa. Por favor, verifique sua caixa de entrada e spam para encontrar o e-mail de ativação.
+                          </>
+                        ) : (
+                          error.message
+                        )}
+                      </span>
                     </div>
                   </div>
                 </div>

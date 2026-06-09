@@ -22,6 +22,13 @@ export async function loginAction(credentials: AuthCredentials) {
     const result: ApiResponseDto<AuthResponse> = await response.json()
 
     if (!response.ok) {
+      const isUnverified = response.status === 403 && (
+        result.message === "Conta não verificada" ||
+        (typeof result.message === "string" && result.message.toLowerCase().includes("não verificada"))
+      )
+      if (isUnverified) {
+        return { error: result.message || "Conta não verificada", isUnverified: true }
+      }
       return { error: result.message || "Falha na autenticação" }
     }
 
