@@ -16,3 +16,5 @@ node_modules
 
 # TypeScript build cache
 *.tsbuildinfo
+
+implementation_plan.md
