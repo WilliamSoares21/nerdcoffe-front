@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Coffee, CheckCircle2, XCircle, ArrowRight, Terminal } from "lucide-react"
 
 // Define API URL
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1"
+const API_URL = process.env.SERVER_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1"
 
 interface PageProps {
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>

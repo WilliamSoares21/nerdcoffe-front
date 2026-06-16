@@ -4,7 +4,7 @@ import { cookies } from "next/headers"
 import { redirect } from "next/navigation"
 import { ApiResponseDto, AuthResponse, AuthCredentials } from "@/lib/types"
 
-const API_URL = "http://localhost:8080/api/v1"
+const API_URL = process.env.SERVER_API_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api/v1"
 
 import { revalidatePath } from "next/cache"
 import { setAuthToken, removeAuthToken } from "@/lib/auth-actions"
